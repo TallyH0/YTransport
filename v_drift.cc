@@ -1,6 +1,7 @@
 
 TH1F *h1 = new TH1F("h1","h1",1000,0,1000);
-TF1 *f1 = new TF1("f1","TMath::Sqrt(TMath::Power([0]/(2*TMath::Pi()),3)) * 4 * TMath::Pi() * x * x * TMath::Exp(-[0]*x*x/2)",0,1000);
+//TF1 *f1 = new TF1("f1","TMath::Sqrt(TMath::Power([0]/(2*TMath::Pi()),3)) * 4 * TMath::Pi() * x * x * TMath::Exp(-[0]*x*x/2)",0,1000);
+TF1 *f1 = new TF1("f1","x * x * TMath::Exp(-[0]*x*x/2)",0,1000);
 void v_drift()
 {
 	gSystem->Load("YTransport.so");
