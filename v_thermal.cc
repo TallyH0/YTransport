@@ -1,16 +1,19 @@
+#include "TF1.h"
+#include "TH1.h"
+#include "TMath.h"
+#include "TRandom.h"
+
+const double T = 273;
+const double m = 9.11e-31;
 
 TH1F *h1 = new TH1F("h1","h1",100,0,1000);
 //TF1 *f1 = new TF1("f1","TMath::Sqrt(TMath::Power([0]/(2*TMath::Pi()),3)) * 4 * TMath::Pi() * x * x * TMath::Exp(-[0]*x*x/2)",0,1e5);
-TF1 *f2 = new TF1("f2","TMath::Sqrt(TMath::Power([0]/(2*TMath::Pi()),3)) * 4 * TMath::Pi() * x * x * x * x * TMath::Exp(-[0]*x*x/2)",0,1e5);
 TF1 *f1 = new TF1("f1","x * x * TMath::Exp(-[0]*x*x/2)",0,1e6);
 void v_thermal(double* v_xyz)
 {
-	double T = 273;
-	double m = 9.11e-31;
 	double para1 = m/(TMath::K()*T);
 	f1->SetParameter(0,para1);
-	f2->SetParameter(0,para1);
-	printf("v = %lf, v_p = %lf\n", f1->GetMaximumX(0,1e7), TMath::Sqrt(2/para1));
+	/*
     f1->SetFillColor(19);
     f1->SetFillStyle(0);
     f1->SetMarkerStyle(20);
@@ -31,6 +34,7 @@ void v_thermal(double* v_xyz)
     f1->GetYaxis()->SetTitleFont(42);
     gStyle->SetOptStat(1);
     gStyle->SetOptTitle(0);
+	*/
 	double v = f1->GetRandom();
 
 	double phi = 2 * TMath::Pi() * gRandom->Rndm();

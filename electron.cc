@@ -10,13 +10,13 @@ void electron::step(const vector<E_field> E)
 	double xo = x, yo = y, zo = z;	
 
 	double tau_c = 1e-2 * collision_time();
-	double dl = v_th(m) * tau_c * 1e9;
+	double dl = v_th() * tau_c * 1e9;
 
 	int index = find_index(E, x, y, z);
 	double Mu = mobility(x, y, z);
 
-	double theta = rand();
-	double phi = rand();
+	double theta = 2 * TMath::Pi() * gRandom->Rndm();;
+	double phi = 2 * TMath::Pi() * gRandom->Rndm();
 	
 	x -= Mu * E[index].Ex * tau_c * 1e3;
 	y -= Mu * E[index].Ey * tau_c * 1e3;
@@ -30,9 +30,7 @@ void electron::step(const vector<E_field> E)
 	t += tau_c;
 
 	rebound();
-//DEBUG
-	printf("z = %lf\n", z);
-//DEBUG
+
 	if(z < 1){
 		if(In_anode())	status_val = 2;
 		else status_val = 1;
@@ -50,7 +48,7 @@ double electron::collision_time()
 } 
 double electron::mean_free_path()
 {
-	return collision_time() * v_th(m);
+	return collision_time() * v_th();
 } 
 void electron::rebound()
 {
@@ -69,4 +67,8 @@ bool electron::In_anode()
 	else return false;
 
 	return false;
+}
+double electron::v_th()
+{
+	return fdist->GetRandom();	
 }

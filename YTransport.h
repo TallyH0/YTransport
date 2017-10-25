@@ -29,8 +29,6 @@ class YGeometry;
 const double k = 1.38064852e-23;
 const double T = 273.15;	
 double mobility(double, double, double);
-double v_th(double);
-double normrnd(double mean, double stdDev);
 
 class YTransport {
 
@@ -53,7 +51,6 @@ public:
 	void event(int);
 	void print();
 	void summary();	
-	double v_thermal(double);
 
 
 };

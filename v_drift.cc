@@ -1,38 +1,83 @@
+#include <iostream>
+#include <fstream>
 
-TH1F *h1 = new TH1F("h1","h1",1000,0,1000);
-//TF1 *f1 = new TF1("f1","TMath::Sqrt(TMath::Power([0]/(2*TMath::Pi()),3)) * 4 * TMath::Pi() * x * x * TMath::Exp(-[0]*x*x/2)",0,1000);
-TF1 *f1 = new TF1("f1","x * x * TMath::Exp(-[0]*x*x/2)",0,1000);
-void v_drift()
+struct Efield
 {
-	gSystem->Load("YTransport.so");
-	double T = 273;
-	double m = 9.11e-31;
-	double para1 = TMath::Sqrt(m/(TMath::K()*T));
-	f1->GetRandom();
-	f1->SetParameter(0,para1);
-    f1->SetFillColor(19);
-    f1->SetFillStyle(0);
-    f1->SetMarkerStyle(20);
-    f1->SetMarkerSize(0.5);
-    f1->SetLineColor(2);
-    f1->SetLineWidth(2);
-    f1->GetXaxis()->SetTitle("v_{thermal}(m/s)");
-    f1->GetXaxis()->SetLabelFont(42);
-    f1->GetXaxis()->SetLabelSize(0.035);
-    f1->GetXaxis()->SetTitleSize(0.06);
-    f1->GetXaxis()->SetTitleOffset(0.77);
-    f1->GetXaxis()->SetTitleFont(42);
-    f1->GetYaxis()->SetTitle("PDF");
-    f1->GetYaxis()->SetLabelFont(42);
-    f1->GetYaxis()->SetLabelSize(0.035);
-    f1->GetYaxis()->SetTitleSize(0.06);
-    f1->GetYaxis()->SetTitleOffset(0.8);
-    f1->GetYaxis()->SetTitleFont(42);
-    f1->SetParameter(0,1.554662e-05);
-    f1->SetParError(0,0);
-    f1->SetParLimits(0,0,0);
-    gStyle->SetOptStat(0);
-    gStyle->SetOptTitle(0);
-	h1->Draw();	
-	f1->Draw("P");
+	int n;
+	double x, y, z, Ex, Ey, Ez;
+};
+
+double mobility(double);
+double doping(double);
+void ReadE(Efield* E);
+int find_index(double, double, double, Efield* );
+
+double v_drift(double x_val, double y_val, double z_val,Efield* E, int type)
+{
+	int index = find_index(x_val, y_val, z_val, E);
+	switch(type){
+	    case 0:
+            return mobility(z_val) * E[index].Ex * 1e-4;
+			break;
+		case 1:
+		    return mobility(z_val) * E[index].Ey * 1e-4;
+			break;
+		case 2:
+		    return mobility(z_val) * E[index].Ez * 1e-4;
+			break;
+		default:
+			printf("Wrong type\n");
+		    break;
+	}
+	return 0;
+}
+void ReadE(Efield* E)
+{
+	std::ifstream ifs ("efield_Si_output.txt");
+	if(!ifs) std::cout << "Error\n";
+
+	Efield tmp;
+	int i = 0;
+	while(!ifs.eof())
+	{
+		ifs >> tmp.n >> tmp.x >> tmp.y >> tmp.z >> tmp.Ex >> tmp.Ey >> tmp.Ez;	
+		E[i].n = tmp.n;
+		E[i].x = tmp.x;
+		E[i].y = tmp.y;
+		E[i].z = tmp.z;
+		E[i].Ex = tmp.Ex;
+		E[i].Ey = tmp.Ey;
+		E[i].Ez = tmp.Ez;
+        i++;
+	}
+}
+double mobility(double z)
+{
+	static double const m_max = 1414;
+	static double const m_min = 68.5;
+	static double const N_r = 9.20e16;
+	static double const alpha = 0.711;
+
+	return m_min + (m_max - m_min) / (1 + pow(doping(z)/N_r , alpha));
+}
+double doping(double z)
+{
+	double a = 1e19, b = 17, c = 0.880639;
+	if(13 <= z && z <= 17)
+		return a * exp(-pow(z-b,2)/(2*c*c)); 
+	else if(17 <= z && z <= 19)
+		return 1e19;
+	else return 1e12;
+}	
+int find_index(double x, double y, double z, Efield* E)
+{
+	int index = 0;
+	double min = 99999999;
+	for(int i = 0; i < 105540; ++i){
+		if(pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2) < min){
+			min = pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2); 
+			index = i;
+		 }	
+	}
+	return index;
 }

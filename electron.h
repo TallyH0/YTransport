@@ -3,6 +3,8 @@
 
 #include <vector>
 #include "TRandom.h"
+#include "TF1.h"
+#include "TMath.h"
 #include "YTransport.h"
 #include "E_field.h"
 #include "Geometry.h"
@@ -31,6 +33,7 @@ public:
 	ClassDef(electron,0)
 
 private:
+    TF1 *fdist = new TF1("fdist","x * x * TMath::Exp(-m*x*x/(2*k*T))",0,1e6);
 	int cnt = 0;
 	int status_val = 0;	
 	double x0, y0, z0;
@@ -38,5 +41,6 @@ private:
 	double D_n();
 	void rebound();
 	bool In_anode();
+	double v_th();
 };
 #endif
