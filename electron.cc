@@ -1,7 +1,7 @@
 #include "electron.h"
 
 ClassImp(electron);
-
+TF1 * fdist = new TF1("fdist","x * x * TMath::Exp(-9.11e-31*x*x/(2*1.38064852e-23*273))",0,1e6);
 electron::electron()
 {
 }
@@ -15,18 +15,18 @@ void electron::step(const vector<E_field> E)
 	int index = find_index(E, x, y, z);
 	double Mu = mobility(x, y, z);
 
-	double theta = 2 * TMath::Pi() * gRandom->Rndm();;
+	double theta = 2 * TMath::Pi() * gRandom->Rndm();
 	double phi = 2 * TMath::Pi() * gRandom->Rndm();
 	
 	x -= Mu * E[index].Ex * tau_c * 1e3;
 	y -= Mu * E[index].Ey * tau_c * 1e3;
 	z -= Mu * E[index].Ez * tau_c * 1e3;
 	
-	x += dl * cos(theta) * sin(phi);
-	y += dl * sin(theta) * sin(phi);
-	z += dl * cos(phi);
+	x -= dl * cos(theta) * sin(phi);
+	y -= dl * sin(theta) * sin(phi);
+	z -= dl * cos(phi);
 
-	path += sqrt(pow(x0-x,2) + pow(yo-y,2) + pow(zo-z,2));
+	path += sqrt(pow(xo-x,2) + pow(yo-y,2) + pow(zo-z,2));
 	t += tau_c;
 
 	rebound();

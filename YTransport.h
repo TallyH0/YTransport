@@ -2,6 +2,7 @@
 #define YTRANSPORT_H
 
 #include "TRandom.h"
+#include "TH1.h"
 
 #include <vector>
 #include <cmath>

@@ -30,12 +30,19 @@ void YTransport::initialize(int n)
 }
 void YTransport::transport()
 {
+	TH1D *htime = new TH1D("htime","",100,0,100);
+	time_t first, second;
 	for(int i = 0; i < elist.size(); ++i)
 	{
+		time(&first);
 		while(!elist[i].status()){
 			event(i);
 		}
+		time(&second);
+		printf("elist[%d] takes %lf seconds\n", i, difftime(second, first));
+		htime->Fill(difftime(second, first));
 	}
+	htime->Draw();
 }
 void YTransport::event(int i)
 {

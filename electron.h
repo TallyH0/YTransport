@@ -3,20 +3,18 @@
 
 #include <vector>
 #include "TRandom.h"
-#include "TF1.h"
 #include "TMath.h"
-#include "YTransport.h"
+#include "TF1.h"
 #include "E_field.h"
 #include "Geometry.h"
 #include <cstdlib>
 #include <cmath>
 #include <ctime>
 
-#define PI 3.14
-
 using namespace std;
 
 struct E_field;
+
 
 class electron {
 public:
@@ -33,7 +31,6 @@ public:
 	ClassDef(electron,0)
 
 private:
-    TF1 *fdist = new TF1("fdist","x * x * TMath::Exp(-m*x*x/(2*k*T))",0,1e6);
 	int cnt = 0;
 	int status_val = 0;	
 	double x0, y0, z0;

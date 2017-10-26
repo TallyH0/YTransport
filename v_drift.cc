@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 struct Efield
 {
@@ -9,12 +10,15 @@ struct Efield
 
 double mobility(double);
 double doping(double);
+double distance(double x1, double y1, double z1, double x0, double y0, double z0);
 void ReadE(Efield* E);
-int find_index(double, double, double, Efield* );
+int first_index(double, double, double, Efield* );
+int second_index(double, double, double, Efield* );
+void interpolate(double x, double y, double z, Efield* E, double* E_val);
 
 double v_drift(double x_val, double y_val, double z_val,Efield* E, int type)
 {
-	int index = find_index(x_val, y_val, z_val, E);
+	int index = first_index(x_val, y_val, z_val, E);
 	switch(type){
 	    case 0:
             return mobility(z_val) * E[index].Ex * 1e-4;
@@ -69,15 +73,46 @@ double doping(double z)
 		return 1e19;
 	else return 1e12;
 }	
-int find_index(double x, double y, double z, Efield* E)
+int first_index(double x, double y, double z, Efield* E)
 {
 	int index = 0;
 	double min = 99999999;
 	for(int i = 0; i < 105540; ++i){
 		if(pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2) < min){
-			min = pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2); 
+		    min = pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2);
 			index = i;
 		 }	
 	}
 	return index;
+}
+int second_index(double x, double y, double z, Efield *E)
+{
+    int index0 = first_index(x,y,z,E);
+	int index = 0;
+	double min = 99999999;
+	for(int i = 0; i < 105540; ++i){
+		if(pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2) < min){
+		    min = pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2);
+			if(i != index0)
+			    index = i;
+		 }	
+	}
+	return index;
+}
+void interpolate(double x, double y, double z, Efield* E, double* vd_xyz)
+{
+	double E_val[3];
+    int in0 = first_index(x,y,z,E);
+	int in1 = second_index(x,y,z,E);
+	
+	E_val[0] = E[in0].Ex * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ex * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
+	E_val[1] = E[in0].Ey * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ey * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
+	E_val[2] = E[in0].Ez * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ez * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
+	vd_xyz[0] = mobility(z) * E_val[0] * 1e-4;
+	vd_xyz[1] = mobility(z) * E_val[1] * 1e-4;
+	vd_xyz[2] = mobility(z) * E_val[2] * 1e-4;
+}
+double distance(double x1, double y1, double z1, double x0, double y0, double z0)
+{
+    return sqrt(pow(x1-x0,2) + pow(y1-y0,2) + pow(z1-z0,2));
 }

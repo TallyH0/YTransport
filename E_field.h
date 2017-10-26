@@ -5,13 +5,11 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
-#include "electron.h"
 
 #define PAD_SIZE 20
 
 using namespace std;
 
-class electron;
 
 struct E_field
 {
