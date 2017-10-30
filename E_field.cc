@@ -10,20 +10,43 @@ void ReadData(vector<E_field>& ElectricField)
 		ElectricField.push_back(tmp);
 	}
 }
-int find_index(const vector<E_field> E, double x, double y, double z)
+void find_index(int* index, const vector<E_field> E, double x, double y, double z)
 {
 	double x1, y1, z1;
 	x1 = x - PAD_SIZE * ((int)(x+10) / PAD_SIZE);
 	y1 = y - PAD_SIZE * ((int)(y+10) / PAD_SIZE);
 	z1 = z; 
-	int index = 0;
+	index[0] = index[1]= 0;
 	double min = 99999999;
 	for(int i = 0; i < E.size(); ++i){
-		if(pow(E[i].x - x1, 2) + pow(E[i].y - y1, 2) + pow(E[i].z - z1, 2) < min){
-			min = pow(E[i].x - x1, 2) + pow(E[i].y - y1, 2) + pow(E[i].z - z1, 2); 
-			index = i;
+		if(distance(E[i].x, E[i].y, E[i].z, x, y, z) < min){
+			min = distance(E[i].x, E[i].y, E[i].z, x, y, z);
+			index[0] = i;
 		 }	
 	}
-	return index;
+	min = 99999999;
+	for(int i = 0; i < E.size(); ++i){
+		if(distance(E[i].x, E[i].y, E[i].z, x, y, z) < min){
+	    	min = distance(E[i].x, E[i].y, E[i].z, x, y, z);
+			if(i != index[0])
+	    	    index[1] = i;
+		}
+    }	
 }
-
+void interpolate(double x, double y, double z, vector<E_field> E, double* vd_xyz)
+{
+    int index[2];
+	find_index(index, E, x, y, z);
+	double E_val[3];
+	
+	E_val[0] = E[index[0]].Ex * distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, x, y, z) + E[index[1]].Ex * distance(x, y, z, E[index[0]].x, E[index[0]].y, E[index[0]].z) / distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z);
+	E_val[1] = E[index[0]].Ey * distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, x, y, z) + E[index[1]].Ey * distance(x, y, z, E[index[0]].x, E[index[0]].y, E[index[0]].z) / distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z);
+	E_val[2] = E[index[0]].Ez * distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, x, y, z) + E[index[1]].Ez * distance(x, y, z, E[index[0]].x, E[index[0]].y, E[index[0]].z) / distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z);
+	vd_xyz[0] = E_val[0];
+	vd_xyz[1] = E_val[1];
+	vd_xyz[2] = E_val[2];
+}
+double distance(double x1, double y1, double z1, double x0, double y0, double z0)
+{
+    return sqrt(pow(x1-x0,2) + pow(y1-y0,2) + pow(z1-z0,2));
+}

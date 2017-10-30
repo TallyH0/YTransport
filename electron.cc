@@ -9,18 +9,19 @@ void electron::step(const vector<E_field> E)
 {	
 	double xo = x, yo = y, zo = z;	
 
-	double tau_c = 1e-2 * collision_time();
+	double tau_c = collision_time();
 	double dl = v_th() * tau_c * 1e9;
 
-	int index = find_index(E, x, y, z);
+    double E_xyz[3];
 	double Mu = mobility(x, y, z);
 
 	double theta = 2 * TMath::Pi() * gRandom->Rndm();
 	double phi = 2 * TMath::Pi() * gRandom->Rndm();
 	
-	x -= Mu * E[index].Ex * tau_c * 1e3;
-	y -= Mu * E[index].Ey * tau_c * 1e3;
-	z -= Mu * E[index].Ez * tau_c * 1e3;
+	interpolate(x, y, z, E, E_xyz);
+	x -= Mu * E_xyz[0] * tau_c * 1e3;
+	y -= Mu * E_xyz[1] * tau_c * 1e3;
+	z -= Mu * E_xyz[2] * tau_c * 1e3;
 	
 	x -= dl * cos(theta) * sin(phi);
 	y -= dl * sin(theta) * sin(phi);
@@ -30,13 +31,11 @@ void electron::step(const vector<E_field> E)
 	t += tau_c;
 
 	rebound();
-
+	if(trap()) status_val = -1;
 	if(z < 1){
 		if(In_anode())	status_val = 2;
 		else status_val = 1;
-		printf("done\n");
 	}
-	if(t > 1) status_val = 1;
 }
 double electron::D_n()
 {
@@ -71,4 +70,13 @@ bool electron::In_anode()
 double electron::v_th()
 {
 	return fdist->GetRandom();	
+}
+bool electron::trap()
+{
+	double t_eff_inverse = beta * PI_eq;
+    double P_trap = t_eff_inverse / (t_eff_inverse + 1/collision_time());
+	if(gRandom->Rndm() < P_trap) return true;
+	else return false;
+
+	return false;
 }

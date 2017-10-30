@@ -19,6 +19,7 @@ struct E_field;
 class electron {
 public:
 	electron();
+	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad;}
 	electron& operator=(const electron&) { }
 	void step(const vector<E_field>);
 	double mean_free_path();
@@ -33,11 +34,13 @@ public:
 private:
 	int cnt = 0;
 	int status_val = 0;	
-	double x0, y0, z0;
+	double beta = 4.1e-16;
+	double PI_eq = 5e13;
 	double collision_time();
 	double D_n();
 	void rebound();
 	bool In_anode();
 	double v_th();
+	bool trap();
 };
 #endif

@@ -4,7 +4,7 @@ int TrSim()
     gSystem->Load("YTransport.so");
 
 	YTransport Sim;
-	Sim.initialize(100);
+	Sim.initialize(10000000);
 	Sim.transport();
 	Sim.print();
 

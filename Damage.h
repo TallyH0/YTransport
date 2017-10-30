@@ -1,7 +1,7 @@
 #ifndef DAMAGE_H
 #define DAMAGE_H
 
-class YDamage
+class Damage
 {
 };
 #endif

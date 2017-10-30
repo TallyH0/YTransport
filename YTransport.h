@@ -22,7 +22,6 @@
 
 using namespace std;
 
-struct doping_value;
 class E_field;
 class electron;
 class YGeometry;
@@ -41,7 +40,7 @@ public:
 
 
 	YGeometry *Geometry;
-	YDamage Damage;
+	Damage damage;
 	YPartIncidence Incidence;
 
 	vector<E_field> Efield;

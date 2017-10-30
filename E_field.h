@@ -17,6 +17,8 @@ struct E_field
 	double x, y, z, Ex, Ey, Ez;
 };
 void ReadData(vector<E_field> &);
-int find_index(const vector<E_field>, double x, double y, double z);
+void find_index(int*, const vector<E_field>, double x, double y, double z);
+double distance(double, double, double, double, double, double);
+void interpolate(double x, double y, double z, vector<E_field> E, double* vd_xyz);
 
 #endif
