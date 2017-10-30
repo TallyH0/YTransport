@@ -2,6 +2,7 @@
 
 ClassImp(electron);
 TF1 * fdist = new TF1("fdist","x * x * TMath::Exp(-9.11e-31*x*x/(2*1.38064852e-23*273))",0,1e6);
+
 electron::electron()
 {
 }

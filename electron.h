@@ -14,7 +14,7 @@
 using namespace std;
 
 struct E_field;
-
+class TF1;
 
 class electron {
 public:
@@ -22,7 +22,6 @@ public:
 	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad;}
 	electron& operator=(const electron&) { }
 	void step(const vector<E_field>);
-	double mean_free_path();
 	int status() { return status_val; }
 	double x, y, z;
 	const double m = 9.11e-31;
@@ -37,6 +36,7 @@ private:
 	double beta = 4.1e-16;
 	double PI_eq = 5e13;
 	double collision_time();
+	double mean_free_path();
 	double D_n();
 	void rebound();
 	bool In_anode();

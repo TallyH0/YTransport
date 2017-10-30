@@ -56,4 +56,26 @@ void YTransport::print()
 	printf("Total status(2) = %d\n", cnt);
 	printf("Total status(-1) = %d\n", cnt_trap);
 }
-
+void YTransport::save(string fname)
+{
+    ofstream ofs (fname);
+	/*
+	for(int i = 0; i < elist.size(); ++i)
+	{
+	    ofs << elist[i].x << ' ' << elist[i].y << ' ' << elist[i].z << ' ' << elist[i].t << ' ' << elist[i].path << endl;
+	}
+	*/
+	ofs.close();
+}
+void YTransport::load(string fname)
+{
+    ifstream ifs {fname};
+	if(!ifs) cout << "error\n";
+	electron tmp;
+	while(!ifs.eof())
+	{
+	   ifs >> tmp.x >> tmp.y >> tmp.z >> tmp.t >> tmp.path;
+	   elist.push_back(tmp);
+	}
+	ifs.close();
+}

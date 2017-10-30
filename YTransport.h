@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <string>
 #include "electron.h"
 #include "E_field.h"
 #include "Doping.h"
@@ -51,6 +52,8 @@ public:
 	void event(int);
 	void print();
 	void summary();	
+	void save(string);
+	void load(string);
 
 
 };
