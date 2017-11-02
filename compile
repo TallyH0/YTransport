@@ -1,6 +1,6 @@
 #!/bin/sh
 rm YTransport.so
-c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransport.cc Doping.cc E_field.cc electron.cc 
+c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransport.cc Doping.cc E_field.cc electron.cc -DDEBUG
 rootcint -f YTransportDict.cc -c YTransport.h 
 rootcint -f DopingDict.cc -c Doping.h 
 rootcint -f E_fieldDict.cc -c E_field.h 

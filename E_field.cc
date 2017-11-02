@@ -39,14 +39,40 @@ void interpolate(double x, double y, double z, vector<E_field> E, double* vd_xyz
 	find_index(index, E, x, y, z);
 	double E_val[3];
 	
+	if(distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z) != 0){
 	E_val[0] = E[index[0]].Ex * distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, x, y, z) + E[index[1]].Ex * distance(x, y, z, E[index[0]].x, E[index[0]].y, E[index[0]].z) / distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z);
 	E_val[1] = E[index[0]].Ey * distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, x, y, z) + E[index[1]].Ey * distance(x, y, z, E[index[0]].x, E[index[0]].y, E[index[0]].z) / distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z);
 	E_val[2] = E[index[0]].Ez * distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, x, y, z) + E[index[1]].Ez * distance(x, y, z, E[index[0]].x, E[index[0]].y, E[index[0]].z) / distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z);
 	vd_xyz[0] = E_val[0];
 	vd_xyz[1] = E_val[1];
 	vd_xyz[2] = E_val[2];
+    }
+	else{
+	vd_xyz[0] = E[index[0]].Ex;
+	vd_xyz[1] = E[index[0]].Ey;
+	vd_xyz[2] = E[index[0]].Ez;
+	}
 }
 double distance(double x1, double y1, double z1, double x0, double y0, double z0)
 {
     return sqrt(pow(x1-x0,2) + pow(y1-y0,2) + pow(z1-z0,2));
 }
+#ifdef DEBUG2
+int main()
+{
+    vector<E_field> field;
+	ReadData(field);
+	double avg[3] = {0};
+
+	for(int i = 0; i < field.size(); ++i)
+	{
+	    avg[0] += field[i].Ex;
+	    avg[1] += field[i].Ey;
+	    avg[2] += field[i].Ez;
+	}
+	avg[0] /= field.size();
+	avg[1] /= field.size();
+	avg[2] /= field.size();
+	printf("%e %e %e\n", avg[0], avg[1], avg[2]);
+}
+#endif

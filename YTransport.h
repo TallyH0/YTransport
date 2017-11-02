@@ -3,6 +3,9 @@
 
 #include "TRandom.h"
 #include "TH1.h"
+#include "TList.h"
+#include "TPolyLine3D.h"
+#include "TPolyMarker3D.h"
 
 #include <vector>
 #include <cmath>
@@ -17,10 +20,6 @@
 #include "PartIncidence.h"
 #include "Temperature.h"
 
-#define SIZE_X 160
-#define SIZE_Y 160
-#define DEPTH 17
-
 using namespace std;
 
 class E_field;
@@ -28,17 +27,17 @@ class electron;
 class YGeometry;
 
 const double k = 1.38064852e-23;
+#ifdef DEBUG
+const double T = 0;	
+#else
 const double T = 273.15;	
-double mobility(double, double, double);
+#endif
 
 class YTransport {
-
-
 public:
-   YTransport();
-   virtual ~YTransport() {}
-   ClassDef(YTransport,0)
-
+    YTransport();
+    virtual ~YTransport() {}
+    ClassDef(YTransport,0)
 
 	YGeometry *Geometry;
 	Damage damage;
@@ -46,15 +45,16 @@ public:
 
 	vector<E_field> Efield;
 	vector<electron> elist;
+
+	TPolyLine3D pos;
+	TPolyLine3D dpos;
+	TPolyMarker3D pm3d;
 	
 	void initialize(int);
 	void transport();
 	void event(int);
 	void print();
-	void summary();	
-	void save(string);
-	void load(string);
-
-
+	void save(string&);
+	void load(string&);
 };
 #endif

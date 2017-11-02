@@ -8,6 +8,7 @@
 
 using namespace std;
 double doping(double, double, double);
+double ddoping(double, double, double);
 
 class Doping{
 	public:

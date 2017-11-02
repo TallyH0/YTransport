@@ -5,11 +5,17 @@
 #include "TRandom.h"
 #include "TMath.h"
 #include "TF1.h"
+#include "TList.h"
+#include "TPolyMarker3D.h"
 #include "E_field.h"
 #include "Geometry.h"
 #include <cstdlib>
 #include <cmath>
 #include <ctime>
+
+#define SIZE_X 20
+#define SIZE_Y 20
+#define DEPTH 17
 
 using namespace std;
 
@@ -31,7 +37,7 @@ public:
 	ClassDef(electron,0)
 
 private:
-	int cnt = 0;
+	int cnt = 1;
 	int status_val = 0;	
 	double beta = 4.1e-16;
 	double PI_eq = 5e13;
@@ -42,5 +48,8 @@ private:
 	bool In_anode();
 	double v_th();
 	bool trap();
+	double mobility();
+	double v_drift(double*, const vector<E_field>);
+	double v_diff();
 };
 #endif
