@@ -9,40 +9,22 @@ void YTransport::initialize(int n)
 	ReadData(Efield);
 	for(int i = 0; i < n; ++i)
 	{
-	    electron tmp(0, 0, 15, 5e12);
+	    electron tmp(0, 0, 9, 5e12);
 		elist.push_back(tmp);	
 	}
-#ifdef DEBUG
-    pos.SetLineColor(2);
-	pm3d.SetMarkerColor(3);
-	pm3d.SetMarkerSize(1);
-	pm3d.SetMarkerStyle(3);
-	for(int i = -SIZE_X; i <= SIZE_X; ++i)
-	{
-	    pm3d.SetNextPoint(i,SIZE_Y,17);
-	    pm3d.SetNextPoint(i,-SIZE_Y,17);
-	    pm3d.SetNextPoint(SIZE_X,i,17);
-	    pm3d.SetNextPoint(-SIZE_X,i,17);
-	}
-	for(int i = 0; i <= 17; ++i)
-	{
-	    pm3d.SetNextPoint(-SIZE_X,-SIZE_Y,i);
-	    pm3d.SetNextPoint(SIZE_X,-SIZE_Y,i);
-	    pm3d.SetNextPoint(-SIZE_X,SIZE_Y,i);
-	    pm3d.SetNextPoint(SIZE_X,SIZE_Y,i);
-	}
-#endif
 }
 void YTransport::transport()
 {
 	time_t first, second;
 	time(&first);
+	int cnt = 1;
 	for(int i = 0; i < elist.size(); ++i)
 	{
 		while(!elist[i].status()){
 			event(i);
 #ifdef DEBUG
-    pos.SetNextPoint(elist[i].x, elist[i].y, elist[i].z);
+	gr.SetPoint(cnt,elist[i].t,elist[i].z);
+	cnt++;
 #endif
 		}
 	}

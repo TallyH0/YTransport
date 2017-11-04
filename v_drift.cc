@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+const double m = 9.11e-31;
+const double q = 1.602e-19;
 
 struct Efield
 {
@@ -15,6 +17,7 @@ void ReadE(Efield* E);
 int first_index(double, double, double, Efield* );
 int second_index(double, double, double, Efield* );
 void interpolate(double x, double y, double z, Efield* E, double* E_val);
+double collision_time(double z);
 
 double v_drift(double x_val, double y_val, double z_val,Efield* E, int type)
 {
@@ -57,10 +60,10 @@ void ReadE(Efield* E)
 }
 double mobility(double z)
 {
-	static double const m_max = 1414;
-	static double const m_min = 68.5;
-	static double const N_r = 9.20e16;
-	static double const alpha = 0.711;
+	static double const m_max = 470.5;
+	static double const m_min = 44.9;
+	static double const N_r = 2.23e17;
+	static double const alpha = 0.719;
 
 	return m_min + (m_max - m_min) / (1 + pow(doping(z)/N_r , alpha));
 }
@@ -77,9 +80,9 @@ int first_index(double x, double y, double z, Efield* E)
 {
 	int index = 0;
 	double min = 99999999;
-	for(int i = 0; i < 105540; ++i){
-		if(pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2) < min){
-		    min = pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2);
+	for(int i = 0; i < 105541; ++i){
+		if(sqrt(pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2)) < min){
+		    min = sqrt(pow(E[i].x - x, 2) + pow(E[i].y - y, 2) + pow(E[i].z - z, 2));
 			index = i;
 		 }	
 	}
@@ -116,3 +119,7 @@ double distance(double x1, double y1, double z1, double x0, double y0, double z0
 {
     return sqrt(pow(x1-x0,2) + pow(y1-y0,2) + pow(z1-z0,2));
 }
+double collision_time(double z)
+{
+	return 1e-4 * mobility(z) * m / q;
+} 

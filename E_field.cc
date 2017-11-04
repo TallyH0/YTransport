@@ -22,8 +22,8 @@ void find_index(int* index, const vector<E_field> E, double x, double y, double 
 		if(distance(E[i].x, E[i].y, E[i].z, x, y, z) < min){
 			min = distance(E[i].x, E[i].y, E[i].z, x, y, z);
 			index[0] = i;
-		 }	
-	}
+		 }
+    }
 	min = 99999999;
 	for(int i = 0; i < E.size(); ++i){
 		if(distance(E[i].x, E[i].y, E[i].z, x, y, z) < min){
@@ -57,22 +57,3 @@ double distance(double x1, double y1, double z1, double x0, double y0, double z0
 {
     return sqrt(pow(x1-x0,2) + pow(y1-y0,2) + pow(z1-z0,2));
 }
-#ifdef DEBUG2
-int main()
-{
-    vector<E_field> field;
-	ReadData(field);
-	double avg[3] = {0};
-
-	for(int i = 0; i < field.size(); ++i)
-	{
-	    avg[0] += field[i].Ex;
-	    avg[1] += field[i].Ey;
-	    avg[2] += field[i].Ez;
-	}
-	avg[0] /= field.size();
-	avg[1] /= field.size();
-	avg[2] /= field.size();
-	printf("%e %e %e\n", avg[0], avg[1], avg[2]);
-}
-#endif

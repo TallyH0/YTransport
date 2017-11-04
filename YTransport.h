@@ -4,6 +4,7 @@
 #include "TRandom.h"
 #include "TH1.h"
 #include "TList.h"
+#include "TGraph.h"
 #include "TPolyLine3D.h"
 #include "TPolyMarker3D.h"
 
@@ -48,6 +49,7 @@ public:
 
 	TPolyLine3D pos;
 	TPolyLine3D dpos;
+	TGraph gr;
 	TPolyMarker3D pm3d;
 	
 	void initialize(int);

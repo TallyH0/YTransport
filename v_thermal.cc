@@ -45,3 +45,7 @@ void v_thermal(double* v_xyz)
 	v_xyz[0] = v * sin * TMath::Cos(phi);
 
 }
+double v_thermal_c()
+{
+    return TMath::Sqrt(3 * TMath::K() * T / m);
+}

@@ -30,6 +30,8 @@ public:
 	void step(const vector<E_field>);
 	int status() { return status_val; }
 	double x, y, z;
+	double dx, dy, dz;
+	double v_xyz[3];
 	const double m = 9.11e-31;
 	const double q = 1.602e-19;
 	double t = 0;
