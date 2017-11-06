@@ -44,7 +44,7 @@ double electron::D_n()
 }
 double electron::collision_time()
 {
-	return 1e-4 * mobility() * m / q;
+	return 1e-4 * 2 * mobility() * m / q;
 } 
 double electron::mean_free_path()
 {
@@ -102,9 +102,9 @@ double electron::v_drift(double* v_xyz, const vector<E_field> E)
 {
     double Mu = mobility();
 	interpolate(x, y, z, E, v_xyz); 
-	v_xyz[0] *= Mu * 1e-4;
-	v_xyz[1] *= Mu * 1e-4;
-	v_xyz[2] *= Mu * 1e-4;
+	v_xyz[0] *= Mu * 1e-2;
+	v_xyz[1] *= Mu * 1e-2;
+	v_xyz[2] *= Mu * 1e-2;
 }
 double electron::v_diff()
 {

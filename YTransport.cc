@@ -44,11 +44,11 @@ void YTransport::print()
 		if(elist[i].status() == 2) cnt++;
 		else if(elist[i].status() == -1) cnt_trap++;
 	}
+    printf("Total status(2) = %d\n", cnt);
+	printf("Total status(-1) = %d\n", cnt_trap);
 #ifdef DEBUG
     pos.Draw();
 	pm3d.Draw("same");
-    printf("Total status(2) = %d\n", cnt);
-	printf("Total status(-1) = %d\n", cnt_trap);
 #endif
 }
 void YTransport::save(string& fname)

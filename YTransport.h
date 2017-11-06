@@ -40,9 +40,7 @@ public:
     virtual ~YTransport() {}
     ClassDef(YTransport,0)
 
-	YGeometry *Geometry;
-	Damage damage;
-	YPartIncidence Incidence;
+	PartIncidence Incidence;
 
 	vector<E_field> Efield;
 	vector<electron> elist;

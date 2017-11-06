@@ -111,9 +111,9 @@ void interpolate(double x, double y, double z, Efield* E, double* vd_xyz)
 	E_val[0] = E[in0].Ex * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ex * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
 	E_val[1] = E[in0].Ey * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ey * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
 	E_val[2] = E[in0].Ez * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ez * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
-	vd_xyz[0] = mobility(z) * E_val[0] * 1e-4;
-	vd_xyz[1] = mobility(z) * E_val[1] * 1e-4;
-	vd_xyz[2] = mobility(z) * E_val[2] * 1e-4;
+	vd_xyz[0] = mobility(z) * E_val[0] * 1e-2;
+	vd_xyz[1] = mobility(z) * E_val[1] * 1e-2;
+	vd_xyz[2] = mobility(z) * E_val[2] * 1e-2;
 }
 double distance(double x1, double y1, double z1, double x0, double y0, double z0)
 {
