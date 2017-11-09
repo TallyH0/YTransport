@@ -4,13 +4,39 @@ ClassImp(YTransport)
 YTransport::YTransport()
 {
 }
-void YTransport::initialize(int n)
+void YTransport::initialize()
 {
+#ifdef DEBUG
+    cube.SetNextPoint(-SIZE_X, -SIZE_Y, 1);
+    cube.SetNextPoint(SIZE_X, -SIZE_Y, 1);
+    cube.SetNextPoint(SIZE_X, -SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(-SIZE_X, -SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(-SIZE_X, -SIZE_Y, 1);
+    cube.SetNextPoint(-SIZE_X, SIZE_Y, 1);
+    cube.SetNextPoint(SIZE_X, SIZE_Y, 1);
+    cube.SetNextPoint(SIZE_X, -SIZE_Y, 1);
+    cube.SetNextPoint(SIZE_X, -SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(-SIZE_X, -SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(-SIZE_X, SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(SIZE_X, SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(SIZE_X, -SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(SIZE_X, SIZE_Y, SIZE_Z);
+    cube.SetNextPoint(SIZE_X, SIZE_Y, 1);
+    cube.SetNextPoint(-SIZE_X, SIZE_Y, 1);
+    cube.SetNextPoint(-SIZE_X, SIZE_Y, SIZE_Z);
+#endif
 	ReadData(Efield);
-	for(int i = 0; i < n; ++i)
+	beam->initialize();
+	beam->generation();
+	cout << beam->pos_carrier[0].size() << endl;
+
+	for(int i=0; i< beam->pos_carrier[0].size(); ++i)
 	{
-	    electron tmp(0, 0, 9, 5e12);
-		elist.push_back(tmp);	
+	    electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
+		elist.push_back(tmp);
+#ifdef DEBUG
+	    partgen.SetNextPoint(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i]);
+#endif
 	}
 }
 void YTransport::transport()
@@ -22,10 +48,6 @@ void YTransport::transport()
 	{
 		while(!elist[i].status()){
 			event(i);
-#ifdef DEBUG
-	gr.SetPoint(cnt,elist[i].t,elist[i].z);
-	cnt++;
-#endif
 		}
 	}
 	time(&second);
@@ -44,11 +66,11 @@ void YTransport::print()
 		if(elist[i].status() == 2) cnt++;
 		else if(elist[i].status() == -1) cnt_trap++;
 	}
-    printf("Total status(2) = %d\n", cnt);
-	printf("Total status(-1) = %d\n", cnt_trap);
+    //printf("Total status(2) = %d\n", cnt);
+	//printf("Total status(-1) = %d\n", cnt_trap);
 #ifdef DEBUG
-    pos.Draw();
-	pm3d.Draw("same");
+    cube.Draw();
+	partgen.Draw("same");
 #endif
 }
 void YTransport::save(string& fname)

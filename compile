@@ -1,9 +1,10 @@
 #!/bin/sh
 rm YTransport.so
-c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransport.cc Doping.cc E_field.cc electron.cc
+c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransport.cc Doping.cc E_field.cc electron.cc PartIncidence.cc -DDEBUG
 rootcint -f YTransportDict.cc -c YTransport.h 
 rootcint -f DopingDict.cc -c Doping.h 
 rootcint -f E_fieldDict.cc -c E_field.h 
 rootcint -f electronDict.cc -c electron.h 
-c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransportDict.cc DopingDict.cc E_fieldDict.cc electronDict.cc 
-c++ -shared -O2 -m64 YTransport.o Doping.o E_field.o electron.o YTransportDict.o DopingDict.o E_fieldDict.o electronDict.o -o YTransport.so
+rootcint -f PartIncidenceDict.cc -c PartIncidence.h 
+c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransportDict.cc DopingDict.cc E_fieldDict.cc electronDict.cc PartIncidenceDict.cc
+c++ -shared -O2 -m64 YTransport.o Doping.o E_field.o electron.o PartIncidence.o YTransportDict.o DopingDict.o E_fieldDict.o electronDict.o PartIncidenceDict.o -o YTransport.so

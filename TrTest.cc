@@ -6,4 +6,7 @@
 void TrTest()
 {
     gSystem->Load("YTransport.so");
+	YTransport* sim = new YTransport();
+	sim->initialize();
+	sim->print();
 }

@@ -21,6 +21,8 @@
 #include "PartIncidence.h"
 #include "Temperature.h"
 
+#define RAD_DAMAGE 5e12
+
 using namespace std;
 
 class E_field;
@@ -28,11 +30,7 @@ class electron;
 class YGeometry;
 
 const double k = 1.38064852e-23;
-#ifdef DEBUG
-const double T = 0;	
-#else
-const double T = 273.15;	
-#endif
+const double T = 300;	
 
 class YTransport {
 public:
@@ -40,17 +38,15 @@ public:
     virtual ~YTransport() {}
     ClassDef(YTransport,0)
 
-	PartIncidence Incidence;
+	PartIncidence* beam = new PartIncidence();
 
 	vector<E_field> Efield;
 	vector<electron> elist;
 
-	TPolyLine3D pos;
-	TPolyLine3D dpos;
-	TGraph gr;
-	TPolyMarker3D pm3d;
+	TPolyLine3D cube;
+	TPolyMarker3D partgen;
 	
-	void initialize(int);
+	void initialize();
 	void transport();
 	void event(int);
 	void print();

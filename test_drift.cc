@@ -6,8 +6,9 @@ TGraph2D *gry = new TGraph2D();
 TGraph2D *grz = new TGraph2D();
 TGraph *gMu = new TGraph();
 TGraph* movez = new TGraph();
-TGraph* moveE = new TGraph();
+TGraph* moveVth = new TGraph();
 TGraph* moveVz = new TGraph();
+TGraph* moveEz = new TGraph();
 
 TH1D* dx = new TH1D("dx","",100,0,1);
 TH1D* dy = new TH1D("dy","",100,0,1);
@@ -20,7 +21,7 @@ void nearpoint();
 void test_drift()
 {
 
-	int step = 1000;
+	int step = 1e3;
     gROOT->LoadMacro("v_drift.cc");
     Efield field[105541];
 	ReadE(field);
@@ -29,19 +30,27 @@ void test_drift()
 	double z = 9;
 	double t = 0;
 	double v_xyz[3];
-
+	double E = 0;
+	double tau = collision_time(z) * 1e1;
 	for(int i = 0; i < step; ++i)
 	{
-	    interpolate(x, y, z, field, v_xyz);
-		double tau = collision_time(z) * 1e3;
+	    E = interpolate(x, y, z, field, v_xyz);
 	    z -= v_xyz[2] * tau * 1e6;
 		movez->SetPoint(i,t,z);
 		moveVz->SetPoint(i,t,v_xyz[2]*1e6);
-		moveE->SetPoint(i,t,v_xyz[2]/mobility(z)*1e4);
+		moveVth->SetPoint(i,t,v_th());
+		moveEz->SetPoint(i,t,E);
+		
 	    x -= v_xyz[0] * tau * 1e6;
 	    y -= v_xyz[1] * tau * 1e6;
 		t += tau;
-		if( z< 1) break;
+		if( z< 1){
+		    movez->RemovePoint(i);
+		    moveVz->RemovePoint(i);
+		    moveEz->RemovePoint(i);
+		    moveVth->RemovePoint(i);
+		    break;
+		}
 	}
 	cout << i << endl;
 }

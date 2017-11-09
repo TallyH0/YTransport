@@ -51,7 +51,7 @@ private:
 	double v_th();
 	bool trap();
 	double mobility();
-	double v_drift(double*, const vector<E_field>);
+	void v_drift(double*, const vector<E_field>);
 	double v_diff();
 };
 #endif

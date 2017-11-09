@@ -1,8 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include "TMath.h"
 const double m = 9.11e-31;
 const double q = 1.602e-19;
+const double T = 300;
+const double k = TMath::K();
 
 struct Efield
 {
@@ -16,8 +19,9 @@ double distance(double x1, double y1, double z1, double x0, double y0, double z0
 void ReadE(Efield* E);
 int first_index(double, double, double, Efield* );
 int second_index(double, double, double, Efield* );
-void interpolate(double x, double y, double z, Efield* E, double* E_val);
+double interpolate(double x, double y, double z, Efield* E, double* E_val);
 double collision_time(double z);
+double v_th();
 
 double v_drift(double x_val, double y_val, double z_val,Efield* E, int type)
 {
@@ -60,12 +64,12 @@ void ReadE(Efield* E)
 }
 double mobility(double z)
 {
-	static double const m_max = 470.5;
-	static double const m_min = 44.9;
-	static double const N_r = 2.23e17;
-	static double const alpha = 0.719;
+    static double const Mu0 = 232;
+    static double const Mu1 = 1180;
+	static double const N_r = 8e16;
+	static double const alpha = 0.9;
 
-	return m_min + (m_max - m_min) / (1 + pow(doping(z)/N_r , alpha));
+	return Mu0 + Mu1 / (1 + pow(doping(z)/N_r , alpha));
 }
 double doping(double z)
 {
@@ -102,8 +106,9 @@ int second_index(double x, double y, double z, Efield *E)
 	}
 	return index;
 }
-void interpolate(double x, double y, double z, Efield* E, double* vd_xyz)
+double interpolate(double x, double y, double z, Efield* E, double* vd_xyz)
 {
+    double v_sat = 2.4e7 / (1+ 0.8 * TMath::Exp(T/600));
 	double E_val[3];
     int in0 = first_index(x,y,z,E);
 	int in1 = second_index(x,y,z,E);
@@ -111,9 +116,15 @@ void interpolate(double x, double y, double z, Efield* E, double* vd_xyz)
 	E_val[0] = E[in0].Ex * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ex * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
 	E_val[1] = E[in0].Ey * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ey * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
 	E_val[2] = E[in0].Ez * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ez * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
-	vd_xyz[0] = mobility(z) * E_val[0] * 1e-2;
-	vd_xyz[1] = mobility(z) * E_val[1] * 1e-2;
-	vd_xyz[2] = mobility(z) * E_val[2] * 1e-2;
+	double v_x = mobility(z) * E_val[0];
+	double v_y = mobility(z) * E_val[1];
+	double v_z = mobility(z) * E_val[2];
+
+	vd_xyz[0] = v_x/(1+v_x/v_sat) * 1e-2;
+	vd_xyz[1] = v_y/(1+v_y/v_sat) * 1e-2;
+	vd_xyz[2] = v_z/(1+v_z/v_sat) * 1e-2;
+
+	return E_val[2];
 }
 double distance(double x1, double y1, double z1, double x0, double y0, double z0)
 {
@@ -121,5 +132,9 @@ double distance(double x1, double y1, double z1, double x0, double y0, double z0
 }
 double collision_time(double z)
 {
-	return 1e-4 * mobility(z) * m / q;
+	return 1e-4 * 2 * mobility(z) * m / q;
 } 
+double v_th()
+{
+    return 1e6 * sqrt(3*k*T/(0.26 * m));
+}

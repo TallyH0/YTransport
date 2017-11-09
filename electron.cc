@@ -1,7 +1,7 @@
 #include "electron.h"
 
 ClassImp(electron);
-TF1 * fdist = new TF1("fdist","x * x * TMath::Exp(-9.11e-31*x*x/(2*1.38064852e-23*273))",0,1e6);
+TF1 * fdist = new TF1("fdist","x * x * TMath::Exp(0.26*-9.11e-31*x*x/(2*1.38064852e-23*300))",0,1e6);
 
 electron::electron()
 {
@@ -10,7 +10,7 @@ void electron::step(const vector<E_field> E)
 {	
 	double xo = x, yo = y, zo = z;	
 
-	double tau_c = collision_time() * 1e2;
+	double tau_c = collision_time() * 5e1;
 	double dl = v_th() * tau_c * 1e6;
 	v_drift(v_xyz, E);
 
@@ -91,20 +91,26 @@ bool electron::trap()
 }
 double electron::mobility()
 {
-	static double const m_max = 470.5;
-	static double const m_min = 44.9;
-	static double const N_r = 2.23e17;
-	static double const alpha = 0.719;
+    static double const Mu0 = 232;
+    static double const Mu1 = 1180;
+	static double const N_r = 8e16;
+	static double const alpha = 0.9;
 
-	return m_min + (m_max - m_min) / (1 + pow(doping(x, y, z)/N_r , alpha));
+	return Mu0 + Mu1 / (1 + pow(doping(x, y, z)/N_r , alpha));
 }
-double electron::v_drift(double* v_xyz, const vector<E_field> E)
+void electron::v_drift(double* v_xyz, const vector<E_field> E)
 {
+    double v_sat = 2.4e7 / (1+ 0.8 * TMath::Exp(T/600));
+
     double Mu = mobility();
 	interpolate(x, y, z, E, v_xyz); 
-	v_xyz[0] *= Mu * 1e-2;
-	v_xyz[1] *= Mu * 1e-2;
-	v_xyz[2] *= Mu * 1e-2;
+    double v_x = Mu*v_xyz[0] / (1 + Mu*v_xyz[0] / v_sat);
+    double v_y = Mu*v_xyz[1] / (1 + Mu*v_xyz[1] / v_sat);
+    double v_z = Mu*v_xyz[2] / (1 + Mu*v_xyz[2] / v_sat);
+
+	v_xyz[0] = v_x * 1e-2;
+	v_xyz[1] = v_y * 1e-2;
+	v_xyz[2] = v_z * 1e-2;
 }
 double electron::v_diff()
 {

@@ -18,22 +18,22 @@ double k = TMath::K();
 double pi = TMath::Pi();
 
 double mobility(double);
-double mobilityN(double);
+double mobilityH(double);
 double collision_time(double);
-double draw_setting(TGraph* );
+void draw_setting(TGraph* );
+double v_th();
 void random_sim(int,double, TH1D*, TH1D*, TH1D*);
 
 void test_parameter()
 {
-    int step = 1e8;
+    int step = 1e5;
 	int cnt = 0;
 	double doping = 1e12;
     vth->SetParameter(0,m/(k*T));
 	vth->SetParameter(1,4*pi*sqrt(TMath::Power(m/(2*pi*k*T),3)));
     for(double i = 1e12; i < 1e20; i += (1e20-1e12)/step)
 	{
-	    gr->SetPoint(cnt,i,mobility(i));
-	    gr2->SetPoint(cnt,i,mobilityN(i));
+	    gr->SetPoint(cnt,i,collision_time(i));
 		cnt++;
 	}
     draw_setting(gr);	
@@ -43,21 +43,21 @@ void test_parameter()
 }
 double mobility(double doping)
 {
-	static double const m_max = 470.5;
-	static double const m_min = 44.9;
-	static double const N_r = 2.23e17;
-	static double const alpha = 0.719;
+    static double const Mu0 = 232;
+    static double const Mu1 = 1180;
+	static double const N_r = 8e16;
+	static double const alpha = 0.9;
 
-	return m_min + (m_max - m_min) / (1 + TMath::Power(doping/N_r , alpha));
+	return Mu0 + Mu1 / (1 + TMath::Power(doping/N_r , alpha));
 }
-double mobilityN(double doping)
+double mobilityH(double doping)
 {
-	static double const m_max = 1414;
-	static double const m_min = 68.5;
-	static double const N_r = 9.2e16;
-	static double const alpha = 0.711;
+    static double const Mu0 = 48;
+    static double const Mu1 = 447;
+	static double const N_r = 6.3e16;
+	static double const alpha = 0.76;
 
-	return m_min + (m_max - m_min) / (1 + TMath::Power(doping/N_r , alpha));
+	return Mu0 + Mu1 / (1 + TMath::Power(doping/N_r , alpha));
 }
 double collision_time(double doping)
 {
@@ -67,7 +67,7 @@ double v_th()
 {
     return vth->GetRandom();
 }
-double draw_setting(TGraph* gr)
+void draw_setting(TGraph* gr)
 {
    gr->GetXaxis()->SetTitle("time (s)");
    gr->GetXaxis()->SetLabelFont(42);
