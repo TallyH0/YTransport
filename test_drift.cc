@@ -9,19 +9,21 @@ TGraph* movez = new TGraph();
 TGraph* moveVth = new TGraph();
 TGraph* moveVz = new TGraph();
 TGraph* moveEz = new TGraph();
+TGraph* VvsE = new TGraph();
 
-TH1D* dx = new TH1D("dx","",100,0,1);
-TH1D* dy = new TH1D("dy","",100,0,1);
-TH1D* dz = new TH1D("dz","",100,0,1);
+TH1D* dx = new TH1D("dx","",100,0,0.22);
+TH1D* dy = new TH1D("dy","",100,0,0.22);
+TH1D* dz = new TH1D("dz","",100,0,0.3);
 
 using namespace std;
+struct Efield;
 
-void nearpoint();
+void nearpoint(int, Efield*);
 
 void test_drift()
 {
 
-	int step = 1e3;
+	int step = 1e5;
     gROOT->LoadMacro("v_drift.cc");
     Efield field[105541];
 	ReadE(field);
@@ -32,6 +34,8 @@ void test_drift()
 	double v_xyz[3];
 	double E = 0;
 	double tau = collision_time(z) * 1e1;
+	nearpoint(step, field);
+	/*
 	for(int i = 0; i < step; ++i)
 	{
 	    E = interpolate(x, y, z, field, v_xyz);
@@ -53,24 +57,47 @@ void test_drift()
 		}
 	}
 	cout << i << endl;
+	*/
+	/*
+	int cnt = 0;
+	for(double i = 1e1; i < 1e5; i += (1e5-1e1)/step)
+	{
+	    VvsE->SetPoint(cnt, i, V_d(i));
+		cnt++;
+	}
+	cout << cnt << endl;
+	*/
 }
-void nearpoint()
+void nearpoint(int step, Efield* field)
 {
     double i, j, k; 
+	int n;
 	for(int p = 0; p < step; ++p)
 	{
 	    i = 20 * gRandom->Rndm() - 10;
 	    j = 20 * gRandom->Rndm() - 10;
 		k = 17 * gRandom->Rndm();
-	    int n = first_index(i, j, k, field);
-		if(fabs(i - field[n].x) > 0.4375)
-		    printf("*X*\nINDEX : %d\nINPUT(%lf, %lf, %lf)\nOUTPUT(%lf, %lf, %lf)\n\n",n,i,j,k,field[n].x,field[n].y,field[n].z);
-		if(fabs(j - field[n].y) > 0.4375)
-		    printf("*Y*\nINDEX : %d\nINPUT(%lf, %lf, %lf)\nOUTPUT(%lf, %lf, %lf)\n\n",n,i,j,k,field[n].x,field[n].y,field[n].z);
-		if(fabs(k - field[n].z) > 0.5)
-		    printf("*Z*\nINDEX : %d\nINPUT(%lf, %lf, %lf)\nOUTPUT(%lf, %lf, %lf)\n\n",n,i,j,k,field[n].x,field[n].y,field[n].z);
+	    n = first_index(i, j, k, field);
+		if(fabs(i - field[n].x) > 0.4375/2){
+		    printf("*X*\nINDEX : %d\nINPUT(%lf, %lf, %lf)\nOUTPUT(%lf, %lf, %lf)\n",n,i,j,k,field[n].x,field[n].y,field[n].z);
+			printf("%lf > %lf\n\n", 0.4375/2, fabs(i - field[n].x));
+		}
+		if(fabs(j - field[n].y) > 0.4375/2){
+		    printf("*Y*\nINDEX : %d\nINPUT(%lf, %lf, %lf)\nOUTPUT(%lf, %lf, %lf)\n",n,i,j,k,field[n].x,field[n].y,field[n].z);
+			printf("%lf > %lf\n\n", 0.4375/2, fabs(i - field[n].y));
+		}
+		if(fabs(k - field[n].z) > 0.25){
+		    printf("*Z*\nINDEX : %d\nINPUT(%lf, %lf, %lf)\nOUTPUT(%lf, %lf, %lf)\n",n,i,j,k,field[n].x,field[n].y,field[n].z);
+			printf("%lf > %lf\n\n", 0.25, i - fabs(field[n].z));
+		}
 		dx->Fill(fabs(i-field[n].x));
 		dy->Fill(fabs(j-field[n].y));
 		dz->Fill(fabs(k-field[n].z));
     }
+}
+double V_d(double E)
+{
+    double v_z = mobility(9) * E; 
+    double v_sat = 2.4e7 / (1+ 0.8 * TMath::Exp(T/600));
+	return v_z/(1+v_z/v_sat);
 }

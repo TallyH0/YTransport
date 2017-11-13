@@ -1,6 +1,5 @@
 #include "PartIncidence.h"
 
-TF1 *normdist = new TF1("normdist","1/sqrt(2*pi*81) * TMath::Exp(-TMath::Power(x-0.5,2)/(2*81))",0,1);
 ClassImp(PartIncidence);
 PartIncidence::PartIncidence()
 {
@@ -8,18 +7,18 @@ PartIncidence::PartIncidence()
 void PartIncidence::initialize()
 {
     srand(unsigned(time(NULL)));
-    direction[2] = -(double)rand()/RAND_MAX; 
-	if((double)rand()/RAND_MAX > 0.5)
-    direction[1] = sqrt(1 - direction[2]*direction[2]) * (double)rand()/RAND_MAX; 
+    direction[2] = -sqrt(3)/2 + (-sqrt(3)/2+1) * RAND(); 
+	if(RAND() > 0.5)
+    direction[1] = sqrt(1 - direction[2]*direction[2]) * RAND(); 
 	else
-    direction[1] = -sqrt(1 - direction[2]*direction[2]) * (double)rand()/RAND_MAX; 
-	if((double)rand()/RAND_MAX > 0.5)
+    direction[1] = -sqrt(1 - direction[2]*direction[2]) * RAND(); 
+	if(RAND() > 0.5)
 	direction[0] = sqrt(1 - direction[2]*direction[2] - direction[1]*direction[1]); 
 	else
 	direction[0] = -sqrt(1 - direction[2]*direction[2] - direction[1]*direction[1]); 
 
-	position_in[0] = SIZE_X * (double)rand()/RAND_MAX - SIZE_X/2;
-	position_in[1] = SIZE_Y * (double)rand()/RAND_MAX - SIZE_Y/2;
+	position_in[0] = SIZE_X * RAND() - SIZE_X/2;
+	position_in[1] = SIZE_Y * RAND() - SIZE_Y/2;
 	position_in[2] = 17;
     
 	double d[3];
@@ -29,7 +28,7 @@ void PartIncidence::initialize()
 	else d[1] = (-SIZE_Y/2 - position_in[1]) / direction[1];
 	d[2] = abs(16/direction[2]);
 
-    
+    dir = 0; 
 	for(int k = 0; k < 2; ++k)
 	{
 		if(d[dir] > d[k+1]) dir = k+1;
@@ -43,43 +42,25 @@ void PartIncidence::initialize()
 }
 void PartIncidence::generation()
 {
+	printf("Generation starts\n");
+
 	vector<double> x;
 	vector<double> y;
 	vector<double> z;
+	double length = sqrt(TMath::Power(position_in[0]-position_out[0], 2) + TMath::Power(position_in[1]-position_out[1], 2) + TMath::Power(position_in[2]-position_out[2], 2));
 	double rnd;
-	printf("Generation starts\n");
-	if(dir!=2)
-	    while(abs(position_in[dir]) < abs(position_out[dir]))
-	    {
-	        for(int j = 0; j < GEN_PER_UM; ++j)
-		    {
-			    //rnd = normdist->GetRandom();
-			    rnd = gRandom->Rndm();
-	            x.push_back(position_in[0] + rnd * direction[0]);
-	            y.push_back(position_in[1] + rnd * direction[1]);
-	            z.push_back(position_in[2] + rnd * direction[2]);
-	        }
-		    for(int k =0; k < 3; ++k)
-		    {
-		        position_in[k] += direction[k];
-		    }
-	    }
-	else
-	    while(abs(position_in[dir]) > abs(position_out[dir]))
-	    {
-	        for(int j = 0; j < GEN_PER_UM; ++j)
-		    {
-			    //rnd = normdist->GetRandom();
-			    rnd = gRandom->Rndm();
-	            x.push_back(position_in[0] + rnd * direction[0]);
-	            y.push_back(position_in[1] + rnd * direction[1]);
-	            z.push_back(position_in[2] + rnd * direction[2]);
-	        }
-		    for(int k =0; k < 3; ++k)
-		    {
-		        position_in[k] += direction[k];
-		    }
-	    }
+
+    TF1* pdist = new TF1("pdist","TMath::Poisson(x,[0])",0,2000);
+	pdist->SetParameter(0, (int)(GEN_PER * length));
+    int tot_gen = (int) pdist->GetRandom();
+
+	for(int i = 0; i < tot_gen; ++i)
+	{
+	    rnd = gRandom->Rndm();
+	    x.push_back(position_in[0] + rnd * (position_out[0] - position_in[0]));
+	    y.push_back(position_in[1] + rnd * (position_out[1] - position_in[1]));
+	    z.push_back(position_in[2] + rnd * (position_out[2] - position_in[2]));
+	}
 	pos_carrier.push_back(x);
 	pos_carrier.push_back(y);
 	pos_carrier.push_back(z);

@@ -1,15 +1,16 @@
 #include "TF1.h"
-#include "TPolyMarker3D.h"
 #include "TList.h"
+#include "TPolyMarker3D.h"
+#include <vector>
 int TrSim()
 {
     gSystem->Load("YTransport.so");
 
-	YTransport Sim;
-	Sim.initialize(100);
-	Sim.transport();
-	Sim.print();
-	Sim.save("RESULT.txt");
+	YTransport *sim = new YTransport();
+	sim->initialize();
+	sim->transport();
+	sim->print();
+	sim->save("RESULT.txt");
 
 	return 0;
 }

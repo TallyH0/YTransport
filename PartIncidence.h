@@ -22,7 +22,8 @@ using namespace std;
 #define SIZE_X 20
 #define SIZE_Y 20
 #define SIZE_Z 17
-#define GEN_PER_UM 80
+#define RAND() (double)rand()/RAND_MAX
+#define GEN_PER 80
 
 class PartIncidence
 {
@@ -35,7 +36,7 @@ public:
     vector<vector<double>> pos_carrier;
 
 private:
-    short dir = 0;
+    int dir = 0;
     double direction[3];
 	double position_in[3];
 	double position_out[3];

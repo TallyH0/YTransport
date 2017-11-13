@@ -10,7 +10,7 @@ void electron::step(const vector<E_field> E)
 {	
 	double xo = x, yo = y, zo = z;	
 
-	double tau_c = collision_time() * 5e1;
+	double tau_c = collision_time()*2e1;
 	double dl = v_th() * tau_c * 1e6;
 	v_drift(v_xyz, E);
 
@@ -28,14 +28,11 @@ void electron::step(const vector<E_field> E)
 
 	rebound();
 	if(trap()) status_val = -1;
-#ifdef DEBUG
-	if(cnt > 1000 || z < 1) status_val = 1;
-#else
+    if(t > tau) status_val = -1;
 	if(z < 1){
 		if(In_anode())	status_val = 2;
 		else status_val = 1;
 	}
-#endif
 	cnt++;
 }
 double electron::D_n()
@@ -125,4 +122,12 @@ double electron::v_diff()
 	return j_n / (q * doping(x, y, z));
 */
 #endif
+}
+double electron::lifetime()
+{
+    double dop = doping(x, y, z);
+	if(dop < 1e16)
+	    return 1e-3 / (1 + dop/5e16);
+	else
+	    return 5e-5 / (1 + dop/5e16);
 }

@@ -35,7 +35,7 @@ const double T = 300;
 class YTransport {
 public:
     YTransport();
-    virtual ~YTransport() {}
+    virtual ~YTransport() {delete beam;}
     ClassDef(YTransport,0)
 
 	PartIncidence* beam = new PartIncidence();
@@ -45,6 +45,8 @@ public:
 
 	TPolyLine3D cube;
 	TPolyMarker3D partgen;
+	TPolyMarker3D pm3d[100];
+	TH1D* htime = new TH1D("htime","collection time",1000,1e12,1e9);
 	
 	void initialize();
 	void transport();

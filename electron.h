@@ -25,7 +25,7 @@ class TF1;
 class electron {
 public:
 	electron();
-	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad;}
+	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad; tau = lifetime();}
 	electron& operator=(const electron&) { }
 	void step(const vector<E_field>);
 	int status() { return status_val; }
@@ -37,12 +37,14 @@ public:
 	double t = 0;
 	double path = 0;
 	ClassDef(electron,0)
+	int cnt = 1;
+	double lifetime();
 
 private:
-	int cnt = 1;
 	int status_val = 0;	
 	double beta = 4.1e-16;
 	double PI_eq = 5e13;
+	double tau = 0;
 	double collision_time();
 	double mean_free_path();
 	double D_n();
