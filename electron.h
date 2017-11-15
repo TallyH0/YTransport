@@ -32,13 +32,16 @@ public:
 	double x, y, z;
 	double dx, dy, dz;
 	double v_xyz[3];
-	const double m = 9.11e-31;
+	const double m = 0.26 * 9.11e-31;
 	const double q = 1.602e-19;
 	double t = 0;
 	double path = 0;
 	ClassDef(electron,0)
 	int cnt = 1;
 	double lifetime();
+	
+	//DEBUG
+    double dl_z = 0;
 
 private:
 	int status_val = 0;	

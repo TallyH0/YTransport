@@ -44,9 +44,10 @@ public:
 	vector<electron> elist;
 
 	TPolyLine3D cube;
+	TGraph Zdebug;
 	TPolyMarker3D partgen;
 	TPolyMarker3D pm3d[100];
-	TH1D* htime = new TH1D("htime","collection time",1000,1e12,1e9);
+	TH1D* htime = new TH1D("htime","collection time",1000,1e-12,1e-8);
 	
 	void initialize();
 	void transport();
@@ -54,5 +55,6 @@ public:
 	void print();
 	void save(string&);
 	void load(string&);
+	void debug();
 };
 #endif

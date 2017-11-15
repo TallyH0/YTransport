@@ -12,7 +12,7 @@ TH1D* hz = new TH1D("hz","hz",1000,-1e-7,1e-7);
 #define power TMath::Power
 
 double q = 1.602e-19;
-double m = 9.11e-31;
+double m = 0.26 * 9.11e-31;
 double T = 273;
 double k = TMath::K();
 double pi = TMath::Pi();
@@ -31,6 +31,7 @@ void test_parameter()
 	double doping = 1e12;
     vth->SetParameter(0,m/(k*T));
 	vth->SetParameter(1,4*pi*sqrt(TMath::Power(m/(2*pi*k*T),3)));
+	/*
     for(double i = 1e12; i < 1e20; i += (1e20-1e12)/step)
 	{
 	    gr->SetPoint(cnt,i,collision_time(i));
@@ -40,6 +41,7 @@ void test_parameter()
     draw_setting(gr2);	
 	gr2->SetLineColor(kGreen);
 	gr->SetLineColor(kRed);
+	*/
 }
 double mobility(double doping)
 {

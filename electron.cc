@@ -10,7 +10,7 @@ void electron::step(const vector<E_field> E)
 {	
 	double xo = x, yo = y, zo = z;	
 
-	double tau_c = collision_time()*2e1;
+	double tau_c = collision_time()*1e1;
 	double dl = v_th() * tau_c * 1e6;
 	v_drift(v_xyz, E);
 
@@ -22,6 +22,8 @@ void electron::step(const vector<E_field> E)
 	dz = v_xyz[2] * tau_c * 1e6 + dl * cos(phi);
 
 	x -= dx; y-= dy; z-=dz;
+	//DEBUG
+	dl_z -= dl * cos(phi);
 
 	path += sqrt(pow(xo-x,2) + pow(yo-y,2) + pow(zo-z,2));
 	t += tau_c;

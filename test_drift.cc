@@ -1,6 +1,12 @@
 #include <iostream>
 #include <cmath>
 
+#define SIZE_X 20
+#define SIZE_Y 20
+#define DEPTH 17
+
+TF1 * fdist = new TF1("fdist","x * x * TMath::Exp(0.26*-9.11e-31*x*x/(2*1.38064852e-23*300))",0,1e6);
+
 TGraph2D *grx = new TGraph2D();
 TGraph2D *gry = new TGraph2D();
 TGraph2D *grz = new TGraph2D();
@@ -19,11 +25,12 @@ using namespace std;
 struct Efield;
 
 void nearpoint(int, Efield*);
+void rebound(double, double, double);
 
 void test_drift()
 {
 
-	int step = 1e5;
+	int step = 2e3;
     gROOT->LoadMacro("v_drift.cc");
     Efield field[105541];
 	ReadE(field);
@@ -33,21 +40,34 @@ void test_drift()
 	double t = 0;
 	double v_xyz[3];
 	double E = 0;
-	double tau = collision_time(z) * 1e1;
-	nearpoint(step, field);
-	/*
+	double tau;
+	double theta, phi;
+	double thermal_x, thermal_y, thermal_z, dl;
+	double rand_test = 0;
+	
 	for(int i = 0; i < step; ++i)
 	{
+	    tau = collision_time(z);
 	    E = interpolate(x, y, z, field, v_xyz);
-	    z -= v_xyz[2] * tau * 1e6;
+	    theta = 2 * TMath::Pi() * gRandom->Rndm();
+	    phi = 2 * TMath::Pi() * gRandom->Rndm();
+
+		dl = fdist->GetRandom() * tau * 1e6;
+	    thermal_x =dl * cos(theta) * sin(phi);
+	    thermal_y =dl * sin(theta) * sin(phi);
+	    thermal_z =dl * cos(phi);
+		rand_test += thermal_z;
+
+	    z -= v_xyz[2] * tau * 1e6 + thermal_z;
 		movez->SetPoint(i,t,z);
 		moveVz->SetPoint(i,t,v_xyz[2]*1e6);
 		moveVth->SetPoint(i,t,v_th());
 		moveEz->SetPoint(i,t,E);
 		
-	    x -= v_xyz[0] * tau * 1e6;
-	    y -= v_xyz[1] * tau * 1e6;
+	    x -= v_xyz[0] * tau * 1e6 + thermal_x;
+	    y -= v_xyz[1] * tau * 1e6 + thermal_y;
 		t += tau;
+		rebound(x, y, z);
 		if( z< 1){
 		    movez->RemovePoint(i);
 		    moveVz->RemovePoint(i);
@@ -57,7 +77,18 @@ void test_drift()
 		}
 	}
 	cout << i << endl;
-	*/
+	cout << rand_test << endl;
+
+	double* Time = movez->GetX();
+	double* Vz = moveVz->GetY();
+	double* Z = movez->GetY();
+	ofstream ofs ("Drift_debug.txt");
+	for(int j = 1; j < i; ++j)
+	{
+	    ofs << Vz[j] * (Time[j] - Time[j-1]) << " = " << Z[j-1] - Z[j] << '\n';
+	}
+    ofs.close();	
+	
 	/*
 	int cnt = 0;
 	for(double i = 1e1; i < 1e5; i += (1e5-1e1)/step)
@@ -100,4 +131,19 @@ double V_d(double E)
     double v_z = mobility(9) * E; 
     double v_sat = 2.4e7 / (1+ 0.8 * TMath::Exp(T/600));
 	return v_z/(1+v_z/v_sat);
+}
+void rebound(double x, double y, double z)
+{
+	while(z < 0 || z > DEPTH){
+	    if(z > DEPTH) z = 2 * DEPTH - z;
+		else if(z < 0) z++;
+	}
+	while(x > SIZE_X/2 || x < -SIZE_X/2){
+	if(x > SIZE_X/2) x = SIZE_X - x;
+	else if(x < -SIZE_X/2) x = -SIZE_X - x;
+	}
+	while(y > SIZE_Y/2 || y < -SIZE_Y/2){
+	if(y > SIZE_Y/2) y = SIZE_Y -y;
+	else if(y < -SIZE_Y/2) y = -SIZE_Y - y;
+	}
 }

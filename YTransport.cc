@@ -30,7 +30,8 @@ void YTransport::initialize()
 	//beam->generation();
     
 	electron tmp(0,0,9,5e12);
-	for(int i=0; i< 10000; ++i)
+	//for(int i=0; i< beam->pos_carrier[0].size(); ++i)
+	for(int i=0; i< 1; ++i)
 	{
 	    //electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
 		elist.push_back(tmp);
@@ -107,4 +108,15 @@ void YTransport::load(string& fname)
 	   elist.push_back(tmp);
 	}
 	ifs.close();
+}
+void YTransport::debug()
+{
+    int ct = 0;
+    while(elist[0].status() == 0)
+	{
+	    elist[0].step(Efield);
+		Zdebug.SetPoint(ct,elist[0].t,elist[0].z);
+		ct++;
+	}
+	cout << elist[0].dl_z << endl;
 }
