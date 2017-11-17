@@ -10,7 +10,7 @@ void electron::step(const vector<E_field> E)
 {	
 	double xo = x, yo = y, zo = z;	
 
-	double tau_c = collision_time()*1e1;
+	double tau_c = time_eff();
 	double dl = v_th() * tau_c * 1e6;
 	v_drift(v_xyz, E);
 
@@ -20,14 +20,20 @@ void electron::step(const vector<E_field> E)
 	dx = v_xyz[0] * tau_c * 1e6 + dl * cos(theta) * sin(phi);
 	dy = v_xyz[1] * tau_c * 1e6 + dl * sin(theta) * sin(phi);
 	dz = v_xyz[2] * tau_c * 1e6 + dl * cos(phi);
+	
 
 	x -= dx; y-= dy; z-=dz;
 	//DEBUG
-	dl_z -= dl * cos(phi);
+	//double vth_x=(dl*cos(theta)*sin(phi));
+	//double vth_y=(dl*sin(theta)*sin(phi));
+	vth_z=(dl*cos(phi));
+	//double vd_x=(v_xyz[0]*tau_c*1e6);
+	//double vd_y=(v_xyz[1]*tau_c*1e6);
+	vd_z=(v_xyz[2]*tau_c*1e6);
 
 	path += sqrt(pow(xo-x,2) + pow(yo-y,2) + pow(zo-z,2));
 	t += tau_c;
-
+    time_eff();
 	rebound();
 	if(trap()) status_val = -1;
     if(t > tau) status_val = -1;
@@ -45,9 +51,10 @@ double electron::collision_time()
 {
 	return 1e-4 * 2 * mobility() * m / q;
 } 
-double electron::mean_free_path()
+double electron::time_eff()
 {
-	return collision_time() * v_th();
+	cout<< 1/(1/collision_time() + 1/(beta*PI_eq)) << endl;
+	return 1/(1/collision_time() + 1/(beta*PI_eq));
 } 
 void electron::rebound()
 {
@@ -76,8 +83,8 @@ bool electron::In_anode()
 }
 double electron::v_th()
 {
-	return fdist->GetRandom();	
-   // return sqrt(3*k*T/m);	
+//	return fdist->GetRandom();	
+    return sqrt(3*k*T/m);	
 }
 bool electron::trap()
 {

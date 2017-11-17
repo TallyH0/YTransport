@@ -116,7 +116,9 @@ void YTransport::debug()
 	{
 	    elist[0].step(Efield);
 		Zdebug.SetPoint(ct,elist[0].t,elist[0].z);
+		hvd->Fill(elist[0].vd_z);
+		hvth->Fill(elist[0].vth_z);
 		ct++;
 	}
-	cout << elist[0].dl_z << endl;
+
 }

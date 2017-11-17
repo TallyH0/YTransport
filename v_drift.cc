@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include "TMath.h"
-const double m = 9.11e-31;
+const double m = 0.26 * 9.11e-31;
 const double q = 1.602e-19;
 const double T = 300;
 const double k = TMath::K();
@@ -136,5 +136,5 @@ double collision_time(double z)
 } 
 double v_th()
 {
-    return 1e6 * sqrt(3*k*T/(0.26 * m));
+    return 1e6 * sqrt(3*k*T/(m));
 }

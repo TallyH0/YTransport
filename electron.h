@@ -41,7 +41,8 @@ public:
 	double lifetime();
 	
 	//DEBUG
-    double dl_z = 0;
+    double vd_z;
+	double vth_z;
 
 private:
 	int status_val = 0;	
@@ -49,7 +50,7 @@ private:
 	double PI_eq = 5e13;
 	double tau = 0;
 	double collision_time();
-	double mean_free_path();
+	double time_eff();
 	double D_n();
 	void rebound();
 	bool In_anode();

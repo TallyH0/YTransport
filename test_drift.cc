@@ -30,7 +30,7 @@ void rebound(double, double, double);
 void test_drift()
 {
 
-	int step = 2e3;
+	int step = 2e4;
     gROOT->LoadMacro("v_drift.cc");
     Efield field[105541];
 	ReadE(field);
@@ -49,25 +49,16 @@ void test_drift()
 	{
 	    tau = collision_time(z);
 	    E = interpolate(x, y, z, field, v_xyz);
-	    theta = 2 * TMath::Pi() * gRandom->Rndm();
-	    phi = 2 * TMath::Pi() * gRandom->Rndm();
 
-		dl = fdist->GetRandom() * tau * 1e6;
-	    thermal_x =dl * cos(theta) * sin(phi);
-	    thermal_y =dl * sin(theta) * sin(phi);
-	    thermal_z =dl * cos(phi);
-		rand_test += thermal_z;
-
-	    z -= v_xyz[2] * tau * 1e6 + thermal_z;
+	    z -= v_xyz[2] * tau * 1e6;
 		movez->SetPoint(i,t,z);
 		moveVz->SetPoint(i,t,v_xyz[2]*1e6);
 		moveVth->SetPoint(i,t,v_th());
 		moveEz->SetPoint(i,t,E);
 		
-	    x -= v_xyz[0] * tau * 1e6 + thermal_x;
-	    y -= v_xyz[1] * tau * 1e6 + thermal_y;
+	    x -= v_xyz[0] * tau * 1e6;
+	    y -= v_xyz[1] * tau * 1e6;
 		t += tau;
-		rebound(x, y, z);
 		if( z< 1){
 		    movez->RemovePoint(i);
 		    moveVz->RemovePoint(i);
@@ -77,7 +68,6 @@ void test_drift()
 		}
 	}
 	cout << i << endl;
-	cout << rand_test << endl;
 
 	double* Time = movez->GetX();
 	double* Vz = moveVz->GetY();
@@ -88,7 +78,12 @@ void test_drift()
 	    ofs << Vz[j] * (Time[j] - Time[j-1]) << " = " << Z[j-1] - Z[j] << '\n';
 	}
     ofs.close();	
-	
+	double sum = 0;
+    for(int k = 0; k < i; ++k)
+	{
+	   sum += Vz[k] * (Time[k] - Time[k-1]); 
+	}
+	cout << sum << endl;
 	/*
 	int cnt = 0;
 	for(double i = 1e1; i < 1e5; i += (1e5-1e1)/step)
