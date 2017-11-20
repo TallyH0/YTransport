@@ -30,8 +30,8 @@ class electron;
 class YGeometry;
 
 const double k = 1.38064852e-23;
-//const double T = 300;	
-const double T = 0;
+const double T = 300;	
+//const double T = 0;
 
 class YTransport {
 public:
@@ -44,11 +44,14 @@ public:
 	vector<E_field> Efield;
 	vector<electron> elist;
 
+    TGraph Z_plot[1000];
+
 	TPolyLine3D cube;
 	TGraph Zdebug;
+	TGraph dz_vth_plot;
 	TPolyMarker3D partgen;
 	TPolyMarker3D pm3d[100];
-	TH1D* htime = new TH1D("htime","collection time",1000,1e-12,1e-8);
+	TH1D* htime = new TH1D("htime","collection time",100,1e-12,1e-8);
 	TH1D* hvd = new TH1D("hvd","Drift dz",100,-0.01,0.05);
 	TH1D* hvth = new TH1D("hvth","Thermal dz",100,-0.3,0.3);
 	

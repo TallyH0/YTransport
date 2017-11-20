@@ -16,6 +16,7 @@
 #define SIZE_X 20
 #define SIZE_Y 20
 #define DEPTH 17
+#define MAX_TRACKING_TIME 1e-7
 
 using namespace std;
 
@@ -41,8 +42,10 @@ public:
 	double lifetime();
 	
 	//DEBUG
-    double vd_z;
-	double vth_z;
+    double vd_z=0;
+	double vth_z=0;
+	double dz_vd;
+	double dz_vth;
 
 private:
 	int status_val = 0;	

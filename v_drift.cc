@@ -7,6 +7,7 @@ const double q = 1.602e-19;
 const double T = 300;
 const double k = TMath::K();
 
+TH3D* hEfield = new TH3D("hEfield","",5500,-10,10,5500,-10,10,50,-1,20);
 struct Efield
 {
 	int n;
@@ -59,6 +60,7 @@ void ReadE(Efield* E)
 		E[i].Ex = tmp.Ex;
 		E[i].Ey = tmp.Ey;
 		E[i].Ez = tmp.Ez;
+		hEfield->Fill(tmp.x, tmp.y, tmp.z, tmp.Ez);
         i++;
 	}
 }
@@ -112,13 +114,20 @@ double interpolate(double x, double y, double z, Efield* E, double* vd_xyz)
 	double E_val[3];
     int in0 = first_index(x,y,z,E);
 	int in1 = second_index(x,y,z,E);
-	
-	E_val[0] = E[in0].Ex * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ex * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
-	E_val[1] = E[in0].Ey * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ey * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
-	E_val[2] = E[in0].Ez * distance(E[in1].x, E[in1].y, E[in1].z, x, y, z) + E[in1].Ez * distance(x, y, z, E[in0].x, E[in0].y, E[in0].z) / distance(E[in1].x, E[in1].y, E[in1].z, E[in0].x, E[in0].y, E[in0].z);
+
+	E_val[0] = E[in0].Ex + (E[in1].Ex - E[in0].Ex) * distance(x,y,z,E[in0].x,E[in0].y,E[in0].z) / distance(E[in0].x,E[in0].y,E[in0].z,E[in1].x,E[in1].y,E[in1].z);
+	E_val[1] = E[in0].Ey + (E[in1].Ey - E[in0].Ey) * distance(x,y,z,E[in0].x,E[in0].y,E[in0].z) / distance(E[in0].x,E[in0].y,E[in0].z,E[in1].x,E[in1].y,E[in1].z);
+	E_val[2] = E[in0].Ez + (E[in1].Ez - E[in0].Ez) * distance(x,y,z,E[in0].x,E[in0].y,E[in0].z) / distance(E[in0].x,E[in0].y,E[in0].z,E[in1].x,E[in1].y,E[in1].z);
+
+	//printf("%lf    :    %lf    <    %lf    <    %lf\n", z, E[in0].Ez, E_val[2], E[in1].Ez);
+
 	double v_x = mobility(z) * E_val[0];
 	double v_y = mobility(z) * E_val[1];
-	double v_z = mobility(z) * E_val[2];
+	double v_z = mobility(z) * 100;
+	//
+	//double v_x = mobility(z) * E[in0].Ex;
+	//double v_y = mobility(z) * E[in0].Ey;
+	//double v_z = mobility(z) * E[in0].Ez;
 
 	vd_xyz[0] = v_x/(1+v_x/v_sat) * 1e-2;
 	vd_xyz[1] = v_y/(1+v_y/v_sat) * 1e-2;

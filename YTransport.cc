@@ -31,7 +31,7 @@ void YTransport::initialize()
     
 	electron tmp(0,0,9,5e12);
 	//for(int i=0; i< beam->pos_carrier[0].size(); ++i)
-	for(int i=0; i< 1; ++i)
+	for(int i=0; i< 1000; ++i)
 	{
 	    //electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
 		elist.push_back(tmp);
@@ -44,22 +44,18 @@ void YTransport::transport()
 {
 	time_t first, second;
 	time(&first);
-	int status_cnt;
-	int pm3d_cnt = 0;
-	while(status_cnt != elist.size())
+	int cnt=0;
+	for(int i=0; i<elist.size(); ++i)
 	{
-	    status_cnt = 1;
-	    for(int i = 0; i < elist.size(); ++i)
+	    cnt=0;
+	    while(elist[i].status()==0)
 		{
-		    if(elist[i].status() == 0)
-			{
-		        event(i);
-			}else{
-			    status_cnt++;
-			}
-	       // pm3d[pm3d_cnt].SetNextPoint(elist[i].x, elist[i].y, elist[i].z);
+		    event(i);
+			Z_plot[i].SetPoint(cnt,elist[i].t,elist[i].z);
+			++cnt;
 		}
-		    //pm3d_cnt++;
+		cout << i << "electron done\n";
+		
 	}
 	time(&second);
 	printf("Simulation takes %lf seconds\n", difftime(second, first));
@@ -74,6 +70,7 @@ void YTransport::print()
 	int cnt_trap = 0;
 	for(int i = 0; i < elist.size(); ++i)
 	{
+	    printf("electron[%d] dz by v_th : %lf    dz by v_drift : %lf\n",i,elist[i].vd_z, elist[i].vth_z);
 	    htime->Fill(elist[i].t); 
 		if(elist[i].status() == 2) cnt++;
 		else if(elist[i].status() == -1) cnt_trap++;
@@ -92,7 +89,8 @@ void YTransport::save(string& fname)
 	
 	for(int i = 0; i < elist.size(); ++i)
 	{
-	    ofs << elist[i].x << '\t' << elist[i].y << '\t' << elist[i].z << '\t' << elist[i].t << '\t' << elist[i].path << '\t' << elist[i].cnt << endl;
+	    ofs << i << " : " << elist[i].x << "    " << elist[i].y << "    " << elist[i].z << "    " << elist[i].t << "    " << elist[i].path << "    " << elist[i].cnt << "    " << '\n'
+		<< elist[i].status() << "    " << elist[i].vth_z << "    " << elist[i].vd_z << endl;
 	}
 	
 	ofs.close();
@@ -116,9 +114,9 @@ void YTransport::debug()
 	{
 	    elist[0].step(Efield);
 		Zdebug.SetPoint(ct,elist[0].t,elist[0].z);
-		hvd->Fill(elist[0].vd_z);
-		hvth->Fill(elist[0].vth_z);
+		dz_vth_plot.SetPoint(ct,elist[0].t,elist[0].vth_z);
+		hvd->Fill(elist[0].dz_vd);
+		hvth->Fill(elist[0].dz_vth);
 		ct++;
 	}
-
 }

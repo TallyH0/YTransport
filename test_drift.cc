@@ -34,6 +34,7 @@ void test_drift()
     gROOT->LoadMacro("v_drift.cc");
     Efield field[105541];
 	ReadE(field);
+	
 	double x = 0;
 	double y = 0;
 	double z = 9;
@@ -56,8 +57,6 @@ void test_drift()
 		moveVth->SetPoint(i,t,v_th());
 		moveEz->SetPoint(i,t,E);
 		
-	    x -= v_xyz[0] * tau * 1e6;
-	    y -= v_xyz[1] * tau * 1e6;
 		t += tau;
 		if( z< 1){
 		    movez->RemovePoint(i);
@@ -84,6 +83,7 @@ void test_drift()
 	   sum += Vz[k] * (Time[k] - Time[k-1]); 
 	}
 	cout << sum << endl;
+	
 	/*
 	int cnt = 0;
 	for(double i = 1e1; i < 1e5; i += (1e5-1e1)/step)

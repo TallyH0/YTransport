@@ -9,34 +9,37 @@ electron::electron()
 void electron::step(const vector<E_field> E)
 {	
 	double xo = x, yo = y, zo = z;	
+	srand(unsigned(time(NULL)));
 
 	double tau_c = time_eff();
-	double dl = v_th() * tau_c * 1e6;
+	t += tau_c;
+	double dl = v_th() * 1e6;
 	v_drift(v_xyz, E);
 
 	double theta = 2 * TMath::Pi() * gRandom->Rndm();
 	double phi = 2 * TMath::Pi() * gRandom->Rndm();
+	//double theta = 2 * TMath::Pi() * (double)rand()/RAND_MAX;
+	//double phi = 2 * TMath::Pi() * (double)rand()/RAND_MAX;
 	
-	dx = v_xyz[0] * tau_c * 1e6 + dl * cos(theta) * sin(phi);
-	dy = v_xyz[1] * tau_c * 1e6 + dl * sin(theta) * sin(phi);
-	dz = v_xyz[2] * tau_c * 1e6 + dl * cos(phi);
-	
+	dx = (v_xyz[0] * 1e6 + dl * cos(theta) * sin(phi)) * tau_c;
+	dy = (v_xyz[1] * 1e6 + dl * sin(theta) * sin(phi)) * tau_c;
+	dz = (v_xyz[2] * 1e6 + dl * cos(phi)) * tau_c;
 
 	x -= dx; y-= dy; z-=dz;
 	//DEBUG
 	//double vth_x=(dl*cos(theta)*sin(phi));
 	//double vth_y=(dl*sin(theta)*sin(phi));
-	vth_z=(dl*cos(phi));
+	dz_vth = dl*cos(phi)*tau_c;
+	vth_z -=(dl*cos(phi)*tau_c);
 	//double vd_x=(v_xyz[0]*tau_c*1e6);
 	//double vd_y=(v_xyz[1]*tau_c*1e6);
-	vd_z=(v_xyz[2]*tau_c*1e6);
+	dz_vd = v_xyz[2]*tau_c*1e6;
+	vd_z -=(v_xyz[2]*tau_c*1e6);
 
 	path += sqrt(pow(xo-x,2) + pow(yo-y,2) + pow(zo-z,2));
-	t += tau_c;
-    time_eff();
 	rebound();
 	if(trap()) status_val = -1;
-    if(t > tau) status_val = -1;
+    if(t > MAX_TRACKING_TIME) status_val = -1;
 	if(z < 1){
 		if(In_anode())	status_val = 2;
 		else status_val = 1;
@@ -53,7 +56,6 @@ double electron::collision_time()
 } 
 double electron::time_eff()
 {
-	cout<< 1/(1/collision_time() + 1/(beta*PI_eq)) << endl;
 	return 1/(1/collision_time() + 1/(beta*PI_eq));
 } 
 void electron::rebound()
@@ -83,8 +85,8 @@ bool electron::In_anode()
 }
 double electron::v_th()
 {
-//	return fdist->GetRandom();	
-    return sqrt(3*k*T/m);	
+	return fdist->GetRandom();	
+    //return sqrt(3*k*T/m);	
 }
 bool electron::trap()
 {
@@ -110,6 +112,7 @@ void electron::v_drift(double* v_xyz, const vector<E_field> E)
 
     double Mu = mobility();
 	interpolate(x, y, z, E, v_xyz); 
+
     double v_x = Mu*v_xyz[0] / (1 + Mu*v_xyz[0] / v_sat);
     double v_y = Mu*v_xyz[1] / (1 + Mu*v_xyz[1] / v_sat);
     double v_z = Mu*v_xyz[2] / (1 + Mu*v_xyz[2] / v_sat);
