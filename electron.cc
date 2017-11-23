@@ -1,40 +1,44 @@
 #include "electron.h"
 
 ClassImp(electron);
-TF1 * fdist = new TF1("fdist","x * x * TMath::Exp(0.26*-9.11e-31*x*x/(2*1.38064852e-23*300))",0,1e6);
+TF1 * fdist = new TF1("fdist","4*TMath::Pi()*TMath::Sqrt(TMath::Power(0.26*9.11e-31/(2*TMath::Pi()*TMath::K()*300),3))* x * x * TMath::Exp(0.26*-9.11e-31*x*x/(2*1.38064852e-23*300))",0,1e6);
 
 electron::electron()
 {
 }
-void electron::step(const vector<E_field> E)
+//void electron::step(const vector<E_field> E)
+void electron::step(TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F* hy3, TH3F* hz1, TH3F* hz2, TH3F* hz3)
 {	
+	seed = gRandom->Rndm();
 	double xo = x, yo = y, zo = z;	
-	srand(unsigned(time(NULL)));
 
-	double tau_c = time_eff();
+//	double tau_c = time_eff();
+	double tau_c = CONST_TAU;
 	t += tau_c;
 	double dl = v_th() * 1e6;
-	v_drift(v_xyz, E);
+	//v_drift(vd_xyz, E);
+	//v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
 
-	double theta = 2 * TMath::Pi() * gRandom->Rndm();
 	double phi = 2 * TMath::Pi() * gRandom->Rndm();
-	//double theta = 2 * TMath::Pi() * (double)rand()/RAND_MAX;
-	//double phi = 2 * TMath::Pi() * (double)rand()/RAND_MAX;
+	double uni_rand = -1 + 2 * gRandom->Rndm();
 	
-	dx = (v_xyz[0] * 1e6 + dl * cos(theta) * sin(phi)) * tau_c;
-	dy = (v_xyz[1] * 1e6 + dl * sin(theta) * sin(phi)) * tau_c;
-	dz = (v_xyz[2] * 1e6 + dl * cos(phi)) * tau_c;
+	dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
+	dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
+	dz = dl * uni_rand * tau_c;
+    //dx = vd_xyz[0] * 1e6 * tau_c;
+    //dy = vd_xyz[1] * 1e6 * tau_c;
+    //dz = vd_xyz[2] * 1e6 * tau_c;
 
 	x -= dx; y-= dy; z-=dz;
 	//DEBUG
 	//double vth_x=(dl*cos(theta)*sin(phi));
 	//double vth_y=(dl*sin(theta)*sin(phi));
-	dz_vth = dl*cos(phi)*tau_c;
-	vth_z -=(dl*cos(phi)*tau_c);
-	//double vd_x=(v_xyz[0]*tau_c*1e6);
-	//double vd_y=(v_xyz[1]*tau_c*1e6);
-	dz_vd = v_xyz[2]*tau_c*1e6;
-	vd_z -=(v_xyz[2]*tau_c*1e6);
+	dx_vth = dx;
+	dy_vth = dy;
+	dz_vth = dz;
+	dl_vth = dl * tau_c;
+	//double vd_x=(vd_xyz[0]*tau_c*1e6);
+	//double vd_y=(vd_xyz[1]*tau_c*1e6);
 
 	path += sqrt(pow(xo-x,2) + pow(yo-y,2) + pow(zo-z,2));
 	rebound();
@@ -45,6 +49,7 @@ void electron::step(const vector<E_field> E)
 		else status_val = 1;
 	}
 	cnt++;
+	    dz100 = z-9;
 }
 double electron::D_n()
 {
@@ -106,34 +111,35 @@ double electron::mobility()
 
 	return Mu0 + Mu1 / (1 + pow(doping(x, y, z)/N_r , alpha));
 }
-void electron::v_drift(double* v_xyz, const vector<E_field> E)
+//void electron::v_drift(double* vd_xyz, const vector<E_field> E)
+void electron::v_drift(double* vd_xyz, TH3F* hx1, TH3F* hx2, TH3F*hx3,TH3F* hy1, TH3F* hy2, TH3F* hy3, TH3F* hz1, TH3F* hz2, TH3F* hz3)
 {
     double v_sat = 2.4e7 / (1+ 0.8 * TMath::Exp(T/600));
 
     double Mu = mobility();
-	interpolate(x, y, z, E, v_xyz); 
+	//interpolate(x, y, z, E, vd_xyz); 
+	if(z<2.1)
+	{
+	    vd_xyz[0] = hx1->Interpolate(x,y,z);
+	    vd_xyz[1] = hy1->Interpolate(x,y,z);
+	    vd_xyz[2] = hz1->Interpolate(x,y,z);
+	}else if(z<17){
+	    vd_xyz[0] = hx2->Interpolate(x,y,z);
+	    vd_xyz[1] = hy2->Interpolate(x,y,z);
+	    vd_xyz[2] = hz2->Interpolate(x,y,z);
+	}else{
+	    vd_xyz[0] = hx2->Interpolate(x,y,z);
+	    vd_xyz[1] = hy2->Interpolate(x,y,z);
+	    vd_xyz[2] = hz2->Interpolate(x,y,z);
+	}
 
-    double v_x = Mu*v_xyz[0] / (1 + Mu*v_xyz[0] / v_sat);
-    double v_y = Mu*v_xyz[1] / (1 + Mu*v_xyz[1] / v_sat);
-    double v_z = Mu*v_xyz[2] / (1 + Mu*v_xyz[2] / v_sat);
+    double v_x = Mu*vd_xyz[0] / (1 + Mu*vd_xyz[0] / v_sat);
+    double v_y = Mu*vd_xyz[1] / (1 + Mu*vd_xyz[1] / v_sat);
+    double v_z = Mu*vd_xyz[2] / (1 + Mu*vd_xyz[2] / v_sat);
 
-	v_xyz[0] = v_x * 1e-2;
-	v_xyz[1] = v_y * 1e-2;
-	v_xyz[2] = v_z * 1e-2;
-}
-double electron::v_diff()
-{
-#ifdef DEBUG
-    double a_k = 0;
-    double dn = fabs(ddoping(x, y, z));
-	return a_k * dn;
-#else
-/*
-	double dn = fabs(ddoping(x, y, z));
-	double j_n = q * D_n() * dn;
-	return j_n / (q * doping(x, y, z));
-*/
-#endif
+	vd_xyz[0] = v_x * 1e-2;
+	vd_xyz[1] = v_y * 1e-2;
+	vd_xyz[2] = v_z * 1e-2;
 }
 double electron::lifetime()
 {

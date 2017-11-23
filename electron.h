@@ -17,6 +17,7 @@
 #define SIZE_Y 20
 #define DEPTH 17
 #define MAX_TRACKING_TIME 1e-7
+#define CONST_TAU 4.17522492152838888e-13
 
 using namespace std;
 
@@ -25,34 +26,38 @@ class TF1;
 
 class electron {
 public:
+    double dz100=0;
+	ClassDef(electron,0)
 	electron();
 	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad; tau = lifetime();}
 	electron& operator=(const electron&) { }
-	void step(const vector<E_field>);
+	//void step(const vector<E_field>);
+	void step(TH3F*, TH3F*, TH3F*,TH3F*, TH3F*, TH3F*, TH3F*, TH3F*, TH3F*);
 	int status() { return status_val; }
 	double x, y, z;
 	double dx, dy, dz;
-	double v_xyz[3];
+	double vd_xyz[3];
 	const double m = 0.26 * 9.11e-31;
 	const double q = 1.602e-19;
 	double t = 0;
 	double path = 0;
-	ClassDef(electron,0)
 	int cnt = 1;
 	double lifetime();
+	double collision_time();
+	unsigned int seed;
 	
 	//DEBUG
-    double vd_z=0;
-	double vth_z=0;
-	double dz_vd;
+
+	double dx_vth;
+	double dy_vth;
 	double dz_vth;
+	double dl_vth;
 
 private:
 	int status_val = 0;	
 	double beta = 4.1e-16;
 	double PI_eq = 5e13;
 	double tau = 0;
-	double collision_time();
 	double time_eff();
 	double D_n();
 	void rebound();
@@ -60,7 +65,7 @@ private:
 	double v_th();
 	bool trap();
 	double mobility();
-	void v_drift(double*, const vector<E_field>);
-	double v_diff();
+	//void v_drift(double*, const vector<E_field>);
+	void v_drift(double*, TH3F*, TH3F*, TH3F*,TH3F*, TH3F*, TH3F*, TH3F*, TH3F*, TH3F*);
 };
 #endif

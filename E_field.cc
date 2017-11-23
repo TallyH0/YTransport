@@ -1,58 +1,75 @@
 #include "E_field.h"
-
 void ReadData(vector<E_field>& ElectricField)
 {
-	ifstream ifs {"efield_Si_output.txt"};
+	ifstream ifs ("efield_Si_output.txt");
 	if(!ifs) std::cout << "Can't read file\n";
 	E_field tmp;
 	while(!ifs.eof()){
 		ifs >> tmp.n >> tmp.x >> tmp.y >> tmp.z >> tmp.Ex >> tmp.Ey >> tmp.Ez;
 		ElectricField.push_back(tmp);
 	}
-}
-void find_index(int* index, const vector<E_field> E, double x, double y, double z)
-{
-	double x1, y1, z1;
-	x1 = x - PAD_SIZE * ((int)(x+10) / PAD_SIZE);
-	y1 = y - PAD_SIZE * ((int)(y+10) / PAD_SIZE);
-	z1 = z; 
-	index[0] = index[1]= 0;
-	double min = 99999999;
-	for(int i = 0; i < E.size(); ++i){
-		if(distance(E[i].x, E[i].y, E[i].z, x, y, z) < min){
-			min = distance(E[i].x, E[i].y, E[i].z, x, y, z);
-			index[0] = i;
-		 }
-    }
-	min = 99999999;
-	for(int i = 0; i < E.size(); ++i){
-		if(distance(E[i].x, E[i].y, E[i].z, x, y, z) < min){
-	    	min = distance(E[i].x, E[i].y, E[i].z, x, y, z);
-			if(i != index[0])
-	    	    index[1] = i;
+	
+	vector<int> tmp_index;
+	double x, y, z;
+	for(int i=0; i<ElectricField.size(); ++i)
+	{
+	    x = ElectricField[i].x, y = ElectricField[i].y, z = ElectricField[i].z;
+		for(int j=i+1; j<ElectricField.size(); ++j)
+		{
+		    if(x==ElectricField[j].x && y==ElectricField[j].y && z==ElectricField[j].z)
+			{
+			    tmp_index.push_back(j);
+			}
 		}
-    }	
+		for(int k=tmp_index.size()-1; k>=0; --k)
+		{
+		   ElectricField.erase(ElectricField.begin()+tmp_index[k]); 
+		}
+		tmp_index.clear();
+	}
+	for(int i=0; i<ElectricField.size(); ++i)
+	{
+	    ElectricField[i].n = i;
+	}
 }
-void interpolate(double x, double y, double z, vector<E_field> E, double* vd_xyz)
+void interpolate(double x, double y, double z, const vector<E_field> E, double* E_interpolated)
 {
-    int index[2];
-	find_index(index, E, x, y, z);
-	double E_val[3];
-	
-	
-	if(distance(E[index[1]].x, E[index[1]].y, E[index[1]].z, E[index[0]].x, E[index[0]].y, E[index[0]].z) != 0){
-	E_val[0] = E[index[0]].Ex + (E[index[1]].Ex - E[index[0]].Ex) * distance(x,y,z,E[index[0]].x,E[index[0]].y,E[index[0]].z) / distance(E[index[0]].x,E[index[0]].y,E[index[0]].z,E[index[1]].x,E[index[1]].y,E[index[1]].z);
-	E_val[1] = E[index[0]].Ey + (E[index[1]].Ey - E[index[0]].Ey) * distance(x,y,z,E[index[0]].x,E[index[0]].y,E[index[0]].z) / distance(E[index[0]].x,E[index[0]].y,E[index[0]].z,E[index[1]].x,E[index[1]].y,E[index[1]].z);
-	E_val[2] = E[index[0]].Ez + (E[index[1]].Ez - E[index[0]].Ez) * distance(x,y,z,E[index[0]].x,E[index[0]].y,E[index[0]].z) / distance(E[index[0]].x,E[index[0]].y,E[index[0]].z,E[index[1]].x,E[index[1]].y,E[index[1]].z);
-	vd_xyz[0] = E_val[0];
-	vd_xyz[1] = E_val[1];
-	vd_xyz[2] = E_val[2];
-    }
-	else{
-	vd_xyz[0] = E[index[0]].Ex; vd_xyz[1] = E[index[0]].Ey;
-	vd_xyz[2] = E[index[0]].Ez;
+    E_interpolated[0] = 0;
+    E_interpolated[1] = 0;
+    E_interpolated[2] = 0;
+    vector<inter> near8;	
+	inter tmp;
+	for(int i=0; i<E.size(); ++i)
+	{
+	   tmp.index = E[i].n;
+	   tmp.dl = distance(x,y,z,E[i].x,E[i].y,E[i].z);
+	   near8.push_back(tmp);
+	}
+	sort(near8.begin(), near8.end());
+	int index = 0;
+	for(int i=0; i<8; ++i)
+	{
+	    index = near8[i].index;
+	}
+	double weight1[8];
+	double sum1=0;
+	for(int i=0; i<8; ++i)
+	{
+	    weight1[i] = pow(near8[i].dl,-1/2);
+		sum1 += weight1[i];
+	}
+	for(int i=0; i<8; ++i)
+	{
+	    weight1[i] /= sum1;
+	}
+	for(int i=0; i<8; ++i)
+	{
+	   E_interpolated[0] += weight1[i] * E[near8[i].index].Ex; 
+	   E_interpolated[1] += weight1[i] * E[near8[i].index].Ey; 
+	   E_interpolated[2] += weight1[i] * E[near8[i].index].Ez; 
 	}
 	
+
 }
 double distance(double x1, double y1, double z1, double x0, double y0, double z0)
 {
