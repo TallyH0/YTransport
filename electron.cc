@@ -18,15 +18,15 @@ void electron::step(TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F*
 	t += tau_c;
 	double dl = v_th() * 1e6;
 	//v_drift(vd_xyz, E);
-	//v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
+	v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
 
 	
-	dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
-	dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
-	dz = dl * uni_rand * tau_c;
-    //dx = vd_xyz[0] * 1e6 * tau_c;
-    //dy = vd_xyz[1] * 1e6 * tau_c;
-    //dz = vd_xyz[2] * 1e6 * tau_c;
+	//dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
+	//dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
+	//dz = dl * uni_rand * tau_c;
+    dx = vd_xyz[0] * 1e6 * tau_c;
+    dy = vd_xyz[1] * 1e6 * tau_c;
+    dz = vd_xyz[2] * 1e6 * tau_c;
 	//dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[0] * 1e6 * tau_c;
 	//dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[1] * 1e6 * tau_c;
 	//dz = dl * uni_rand * tau_c + vd_xyz[2] * 1e6 * tau_c;

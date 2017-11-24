@@ -132,7 +132,6 @@ void YTransport::transport()
 	    while(elist[i].status() == 0)
 		{
 		    event(i);
-			
 			dx.push_back(elist[i].dx);
 			dy.push_back(elist[i].dy);
 			dz.push_back(elist[i].dz);
@@ -150,7 +149,6 @@ void YTransport::transport()
 			    dz3->Fill(9-elist[i].z);
 			else if(elist[i].cnt == 100000)
 			    dz4->Fill(9-elist[i].z);
-			
 		}
 		save("RESULT_diffusion_only.txt", i);
 		cout << i + 1 << " electron done\n";
