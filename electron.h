@@ -26,7 +26,6 @@ class TF1;
 
 class electron {
 public:
-    double dz100=0;
 	ClassDef(electron,0)
 	electron();
 	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad; tau = lifetime();}
@@ -48,10 +47,9 @@ public:
 	
 	//DEBUG
 
-	double dx_vth;
-	double dy_vth;
-	double dz_vth;
-	double dl_vth;
+	double path_dl;
+	double Ez;
+	double Vdz;
 
 private:
 	int status_val = 0;	

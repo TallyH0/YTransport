@@ -7,27 +7,25 @@ YTransport::YTransport()
 void YTransport::initialize(char* fname, int n)
 {
 	TFile* fin = new TFile(fname);
-	TKey* key = new TKey();
-	key = fin->FindKey("hfieldx1");
-	hfieldx1 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldx2");
-	hfieldx2 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldx3");
-	hfieldx3 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldy1");
-	hfieldy1 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldy2");
-	hfieldy2 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldy3");
-	hfieldy3 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldz1");
-	hfieldz1 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldz2");
-	hfieldz2 = (TH3F*)key->ReadObj();
-	key = fin->FindKey("hfieldz3");
-	hfieldz3 = (TH3F*)key->ReadObj();
-
-	delete key;
+	hfieldx1 = (TH3F*)fin->Get("hfieldx1;1");
+	hfieldx1->SetDirectory(0);
+	hfieldx2 = (TH3F*)fin->Get("hfieldx2;1");
+	hfieldx2->SetDirectory(0);
+	hfieldx3 = (TH3F*)fin->Get("hfieldx3;1");
+	hfieldx3->SetDirectory(0);
+	hfieldy1 = (TH3F*)fin->Get("hfieldy1;1");
+	hfieldy1->SetDirectory(0);
+	hfieldy2 = (TH3F*)fin->Get("hfieldy2;1");
+	hfieldy2->SetDirectory(0);
+	hfieldy3 = (TH3F*)fin->Get("hfieldy3;1");
+	hfieldy3->SetDirectory(0);
+	hfieldz1 = (TH3F*)fin->Get("hfieldz1;1");
+	hfieldz1->SetDirectory(0);
+	hfieldz2 = (TH3F*)fin->Get("hfieldz2;1");
+	hfieldz2->SetDirectory(0);
+	hfieldz3 = (TH3F*)fin->Get("hfieldz3;1");
+	hfieldz3->SetDirectory(0);
+    delete fin;
 	//beam->initialize();
 	//beam->generation();
     
@@ -135,26 +133,32 @@ void YTransport::transport()
 		{
 		    event(i);
 			
-			dx.push_back(elist[i].dx_vth);
-			dy.push_back(elist[i].dy_vth);
-			dz.push_back(elist[i].dz_vth);
-			dl.push_back(elist[i].dl_vth);
+			dx.push_back(elist[i].dx);
+			dy.push_back(elist[i].dy);
+			dz.push_back(elist[i].dz);
+			dl.push_back(elist[i].path_dl);
 			Z_plot[i].SetPoint(cnt,elist[i].t,elist[i].z);
+            Ez_plot[i].SetPoint(cnt,elist[i].z,elist[i].Ez);
+			Vz_plot[i].SetPoint(cnt,elist[i].z,elist[i].Vdz);
+			hVdz->Fill(elist[i].Vdz);
 			++cnt;
-			if(elist[i].cnt == 10000)
-			{
-			    dz100->Fill(elist[i].dz100);
-				printf("%lf\n", elist[i].dz100);
-			}
+			if(elist[i].cnt == 100)
+			    dz1->Fill(9-elist[i].z);
+			else if(elist[i].cnt == 1000)
+			    dz2->Fill(9-elist[i].z);
+			else if(elist[i].cnt == 10000)
+			    dz3->Fill(9-elist[i].z);
+			else if(elist[i].cnt == 100000)
+			    dz4->Fill(9-elist[i].z);
 			
 		}
 		save("RESULT_diffusion_only.txt", i);
 		cout << i + 1 << " electron done\n";
 		
-		vth_dx.push_back(dx);
-		vth_dy.push_back(dy);
-		vth_dz.push_back(dz);
-		vth_dl.push_back(dl);
+		carrier_dx.push_back(dx);
+		carrier_dy.push_back(dy);
+		carrier_dz.push_back(dz);
+		carrier_dl.push_back(dl);
 	    dx.clear();
 		dy.clear();
 		dz.clear();
@@ -216,12 +220,12 @@ void YTransport::debug(int n)
     hvthy->Reset();
     hvthz->Reset();
     hvthl->Reset();
-	for(int i=0; i<vth_dx[n].size(); ++i)
+	for(int i=0; i<carrier_dx[n].size(); ++i)
 	{
-	   hvthx->Fill(vth_dx[n][i]);
-	   hvthy->Fill(vth_dy[n][i]);
-	   hvthz->Fill(vth_dz[n][i]);
-	   hvthl->Fill(vth_dl[n][i]);
+	   hvthx->Fill(carrier_dx[n][i]);
+	   hvthy->Fill(carrier_dy[n][i]);
+	   hvthz->Fill(carrier_dz[n][i]);
+	   hvthl->Fill(carrier_dl[n][i]);
 	}
     
 }

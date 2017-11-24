@@ -9,18 +9,17 @@ electron::electron()
 //void electron::step(const vector<E_field> E)
 void electron::step(TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F* hy3, TH3F* hz1, TH3F* hz2, TH3F* hz3)
 {	
-	seed = gRandom->Rndm();
-	double xo = x, yo = y, zo = z;	
+	seed = gRandom->GetSeed();
 
-//	double tau_c = time_eff();
-	double tau_c = CONST_TAU;
+	double tau_c = time_eff();
+	double phi = 2 * TMath::Pi() * gRandom->Rndm();
+	double uni_rand = -1 + 2 * gRandom->Rndm();
+	//double tau_c = CONST_TAU;
 	t += tau_c;
 	double dl = v_th() * 1e6;
 	//v_drift(vd_xyz, E);
 	//v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
 
-	double phi = 2 * TMath::Pi() * gRandom->Rndm();
-	double uni_rand = -1 + 2 * gRandom->Rndm();
 	
 	dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
 	dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
@@ -28,28 +27,23 @@ void electron::step(TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F*
     //dx = vd_xyz[0] * 1e6 * tau_c;
     //dy = vd_xyz[1] * 1e6 * tau_c;
     //dz = vd_xyz[2] * 1e6 * tau_c;
+	//dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[0] * 1e6 * tau_c;
+	//dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[1] * 1e6 * tau_c;
+	//dz = dl * uni_rand * tau_c + vd_xyz[2] * 1e6 * tau_c;
 
 	x -= dx; y-= dy; z-=dz;
 	//DEBUG
-	//double vth_x=(dl*cos(theta)*sin(phi));
-	//double vth_y=(dl*sin(theta)*sin(phi));
-	dx_vth = dx;
-	dy_vth = dy;
-	dz_vth = dz;
-	dl_vth = dl * tau_c;
-	//double vd_x=(vd_xyz[0]*tau_c*1e6);
-	//double vd_y=(vd_xyz[1]*tau_c*1e6);
+	path_dl = sqrt(dx*dx + dy*dy + dz*dz);
 
-	path += sqrt(pow(xo-x,2) + pow(yo-y,2) + pow(zo-z,2));
+	path += path_dl;
 	rebound();
-	if(trap()) status_val = -1;
-    if(t > MAX_TRACKING_TIME) status_val = -1;
+	if(trap()) status_val = -2;
+    if(t > tau) status_val = -2;
 	if(z < 1){
 		if(In_anode())	status_val = 2;
 		else status_val = 1;
 	}
 	cnt++;
-	    dz100 = z-9;
 }
 double electron::D_n()
 {
@@ -123,15 +117,22 @@ void electron::v_drift(double* vd_xyz, TH3F* hx1, TH3F* hx2, TH3F*hx3,TH3F* hy1,
 	    vd_xyz[0] = hx1->Interpolate(x,y,z);
 	    vd_xyz[1] = hy1->Interpolate(x,y,z);
 	    vd_xyz[2] = hz1->Interpolate(x,y,z);
+		if(hz1->Interpolate(x,y,z) == 0 || hy1->Interpolate(x,y,z) ==0 || hx1->Interpolate(x,y,z) == 0)
+		    printf("Domain 1 : %lf %lf %lf\n",x, y, z);
 	}else if(z<17){
 	    vd_xyz[0] = hx2->Interpolate(x,y,z);
 	    vd_xyz[1] = hy2->Interpolate(x,y,z);
 	    vd_xyz[2] = hz2->Interpolate(x,y,z);
+		if(hz2->Interpolate(x,y,z) == 0 || hy2->Interpolate(x,y,z) ==0 || hx2->Interpolate(x,y,z) == 0)
+		    printf("Domain 2 : %lf %lf %lf\n",x, y, z);
 	}else{
 	    vd_xyz[0] = hx2->Interpolate(x,y,z);
 	    vd_xyz[1] = hy2->Interpolate(x,y,z);
 	    vd_xyz[2] = hz2->Interpolate(x,y,z);
+		if(hz3->Interpolate(x,y,z) == 0 || hy3->Interpolate(x,y,z) ==0 || hx3->Interpolate(x,y,z) == 0)
+		    printf("Domain 3 : %lf %lf %lf\n",x, y, z);
 	}
+	Ez = vd_xyz[2];
 
     double v_x = Mu*vd_xyz[0] / (1 + Mu*vd_xyz[0] / v_sat);
     double v_y = Mu*vd_xyz[1] / (1 + Mu*vd_xyz[1] / v_sat);
@@ -140,6 +141,7 @@ void electron::v_drift(double* vd_xyz, TH3F* hx1, TH3F* hx2, TH3F*hx3,TH3F* hy1,
 	vd_xyz[0] = v_x * 1e-2;
 	vd_xyz[1] = v_y * 1e-2;
 	vd_xyz[2] = v_z * 1e-2;
+	Vdz = vd_xyz[2];
 }
 double electron::lifetime()
 {

@@ -26,9 +26,9 @@
 #include "Temperature.h"
 
 #define RAD_DAMAGE 5e12
-#define bin_x 50
-#define bin_y 50
-#define bin_z 15
+#define bin_x 100
+#define bin_y 100
+#define bin_z 45
 
 using namespace std;
 
@@ -64,7 +64,11 @@ public:
 	vector<electron> elist;
 
 
-	TH1F* dz100 = new TH1F("dz100","",100,-10,10);
+	TH1F* dz1 = new TH1F("dz1","After 10^{2} step",100,-10,10);
+	TH1F* dz2 = new TH1F("dz2","After 10^{3} step",100,-10,10);
+	TH1F* dz3 = new TH1F("dz3","After 2 X 10^{4} step",100,-10,10);
+	TH1F* dz4 = new TH1F("dz4","After 3 X 10^{5} step",100,-10,10);
+	
 	TH3F* hfieldx1 = new TH3F("hfieldx1","",bin_x,-10,10,bin_y,-10,10,bin_z,0,2.5);
 	TH3F* hfieldy1 = new TH3F("hfieldy1","",bin_x,-10,10,bin_y,-10,10,bin_z,0,2.5);
 	TH3F* hfieldz1 = new TH3F("hfieldz1","",bin_x,-10,10,bin_y,-10,10,bin_z,0,2.5);
@@ -74,7 +78,7 @@ public:
 	TH3F* hfieldx3 = new TH3F("hfieldx3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
 	TH3F* hfieldy3 = new TH3F("hfieldy3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
 	TH3F* hfieldz3 = new TH3F("hfieldz3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
-	TH1D* htime = new TH1D("htime","collection time",100,1e-13,1e-7);
+	TH1D* htime = new TH1D("htime","collection time",100,1e-10,2e-7);
 	
 	TPolyLine3D cube;
 	TPolyMarker3D partgen;
@@ -85,10 +89,13 @@ public:
 	TH1F* hvthz = new TH1F("hvthz","Thermal dz",100,-0.3,0.3);
 	TH1F* hvthl = new TH1F("hvthl","Thermal dl",100,-0.01,0.25);
     TGraph Z_plot[1000];
-	vector<vector<double>> vth_dx;
-	vector<vector<double>> vth_dy;
-	vector<vector<double>> vth_dz;
-	vector<vector<double>> vth_dl;
+	TGraph Ez_plot[1000];
+	TGraph Vz_plot[1000];
+	TH1F* hVdz = new TH1F("hVdz","Drift Velocity distribution",100,1e2,1e5);
+	vector<vector<double>> carrier_dx;
+	vector<vector<double>> carrier_dy;
+	vector<vector<double>> carrier_dz;
+	vector<vector<double>> carrier_dl;
 	
 	
 	void initialize(int);
