@@ -18,6 +18,7 @@ using namespace std;
 #define pi TMath::Pi()
 #define sqrt TMath::Sqrt
 #define cos TMath::Cos
+#define sin TMath::Sin
 #define abs TMath::Abs
 #define SIZE_X 20
 #define SIZE_Y 20

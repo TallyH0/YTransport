@@ -7,11 +7,12 @@ PartIncidence::PartIncidence()
 void PartIncidence::initialize()
 {
     srand(unsigned(time(NULL)));
-    direction[2] = -sqrt(3)/2 + (-sqrt(3)/2+1) * RAND(); 
+	double phi = RAND();
+    direction[2] = -sqrt(3)/2 + -sqrt(3) * RAND(); 
 	if(RAND() > 0.5)
-    direction[1] = sqrt(1 - direction[2]*direction[2]) * RAND(); 
+    direction[1] = sqrt(1 - direction[2]*direction[2]) * cos(phi); 
 	else
-    direction[1] = -sqrt(1 - direction[2]*direction[2]) * RAND(); 
+    direction[1] = -sqrt(1 - direction[2]*direction[2]) * cos(phi); 
 	if(RAND() > 0.5)
 	direction[0] = sqrt(1 - direction[2]*direction[2] - direction[1]*direction[1]); 
 	else

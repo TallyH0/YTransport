@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #define PAD_SIZE 20
+#define NEAR_N 16
 
 using namespace std;
 

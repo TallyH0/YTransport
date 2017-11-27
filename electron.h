@@ -54,7 +54,7 @@ public:
 private:
 	int status_val = 0;	
 	double beta = 4.1e-16;
-	double PI_eq = 5e13;
+	double PI_eq;
 	double tau = 0;
 	double time_eff();
 	double D_n();

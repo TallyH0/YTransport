@@ -44,10 +44,10 @@ void electron::step(int mode, TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* 
 	path += path_dl;
 	rebound();
 	if(trap()) status_val = -2;
-    if(t > tau) status_val = -2;
+    if(t > tau) status_val = -1;
 	if(z < 1){
 		if(In_anode())	status_val = 2;
-		else status_val = 1;
+		else status_val = 2;
 	}
 	cnt++;
 }
@@ -82,7 +82,8 @@ bool electron::In_anode()
 {
 	double x1 = x - PAD_SIZE * ((int)(x+10) / PAD_SIZE);
 	double y1 = y - PAD_SIZE * ((int)(y+10) / PAD_SIZE);
-	if( ANODE_SIZE < fabs(x1) && fabs(x1) < ANODE_SIZE + SPACING && ANODE_SIZE < fabs(y1) && fabs(y1) < ANODE_SIZE + SPACING)
+	//if( ANODE_SIZE < fabs(x1) && fabs(x1) < ANODE_SIZE + SPACING && ANODE_SIZE < fabs(y1) && fabs(y1) < ANODE_SIZE + SPACING)
+	if(distance(x1,y1,0,0,0,0) < 3.5*3.5)
 	return true;
 	else return false;
 

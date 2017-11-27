@@ -6,8 +6,8 @@
 #include "YTransport.h"
 #include "electron.h"
 
-#define SPACING 2
-#define ANODE_SIZE 0.5
+#define SPACING 2.5
+#define ANODE_SIZE 1
 
 class electron;
 

@@ -144,11 +144,11 @@ void YTransport::transport(int mode)
 	    while(elist[i].status() == 0)
 		{
 		    event(mode, i);
-			Z_plot[i].SetPoint(cnt,elist[i].t,elist[i].z);
-            Ez_plot[i].SetPoint(cnt,elist[i].t,elist[i].Ez);
-			Vz_plot[i].SetPoint(cnt,elist[i].t,elist[i].Vdz);
-			++cnt;
 			/*
+			Z_plot[i].SetPoint(cnt,elist[i].t,elist[i].z);
+            Ez_plot[i].SetPoint(cnt,elist[i].z,elist[i].Ez);
+			Vz_plot[i].SetPoint(cnt,elist[i].z,elist[i].Vdz);
+			++cnt;
 			dx.push_back(elist[i].dx);
 			dy.push_back(elist[i].dy);
 			dz.push_back(elist[i].dz);
@@ -162,11 +162,12 @@ void YTransport::transport(int mode)
 			    dz3->Fill(9-elist[i].z);
 			else if(elist[i].cnt == 100000)
 			    dz4->Fill(9-elist[i].z);
-			*/
+				*/
 		}
 		save("RESULT_diffusion_only.txt", i);
 		cout << i + 1 << " electron done\n";
 		
+		/*
 		carrier_dx.push_back(dx);
 		carrier_dy.push_back(dy);
 		carrier_dz.push_back(dz);
@@ -175,6 +176,7 @@ void YTransport::transport(int mode)
 		dy.clear();
 		dz.clear();
 		dl.clear();
+		*/
 		
 	}
 	time(&second);
@@ -194,10 +196,10 @@ void YTransport::print()
 	{
 	    htime->Fill(elist[i].t); 
 		if(elist[i].status() == 2) cnt++;
-		else if(elist[i].status() == -1) cnt_trap++;
+		else if(elist[i].status() == -2) cnt_trap++;
 	}
     printf("Total status(2) = %d\n", cnt);
-	printf("Total status(-1) = %d\n", cnt_trap);
+	printf("Total status(-2) = %d\n", cnt_trap);
 	htime->Draw();
 #ifdef DEBUG
     cube.Draw();

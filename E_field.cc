@@ -47,22 +47,22 @@ void interpolate(double x, double y, double z, const vector<E_field> E, double* 
 	}
 	sort(near8.begin(), near8.end());
 	int index = 0;
-	for(int i=0; i<8; ++i)
+	for(int i=0; i<NEAR_N; ++i)
 	{
 	    index = near8[i].index;
 	}
-	double weight1[8];
+	double weight1[NEAR_N];
 	double sum1=0;
-	for(int i=0; i<8; ++i)
+	for(int i=0; i<NEAR_N; ++i)
 	{
-	    weight1[i] = pow(near8[i].dl,-1/2);
+	    weight1[i] = pow(near8[i].dl,-2);
 		sum1 += weight1[i];
 	}
-	for(int i=0; i<8; ++i)
+	for(int i=0; i<NEAR_N; ++i)
 	{
 	    weight1[i] /= sum1;
 	}
-	for(int i=0; i<8; ++i)
+	for(int i=0; i<NEAR_N; ++i)
 	{
 	   E_interpolated[0] += weight1[i] * E[near8[i].index].Ex; 
 	   E_interpolated[1] += weight1[i] * E[near8[i].index].Ey; 
