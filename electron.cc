@@ -7,7 +7,7 @@ electron::electron()
 {
 }
 //void electron::step(const vector<E_field> E)
-void electron::step(TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F* hy3, TH3F* hz1, TH3F* hz2, TH3F* hz3)
+void electron::step(int mode, TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F* hy3, TH3F* hz1, TH3F* hz2, TH3F* hz3)
 {	
 	seed = gRandom->GetSeed();
 
@@ -18,18 +18,24 @@ void electron::step(TH3F* hx1, TH3F* hx2, TH3F* hx3, TH3F* hy1, TH3F* hy2, TH3F*
 	t += tau_c;
 	double dl = v_th() * 1e6;
 	//v_drift(vd_xyz, E);
-	v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
 
-	
-	//dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
-	//dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
-	//dz = dl * uni_rand * tau_c;
+    if(mode == 0)
+	{
+	dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
+	dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c;
+	dz = dl * uni_rand * tau_c;
+	}else if(mode == 1)
+	{
+	v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
     dx = vd_xyz[0] * 1e6 * tau_c;
     dy = vd_xyz[1] * 1e6 * tau_c;
     dz = vd_xyz[2] * 1e6 * tau_c;
-	//dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[0] * 1e6 * tau_c;
-	//dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[1] * 1e6 * tau_c;
-	//dz = dl * uni_rand * tau_c + vd_xyz[2] * 1e6 * tau_c;
+	}else{
+	v_drift(vd_xyz, hx1,hx2,hx3,hy1,hy2,hy3,hz1,hz2,hz3);
+	dx = dl * TMath::Cos(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[0] * 1e6 * tau_c;
+	dy = dl * TMath::Sin(phi) * TMath::Sqrt((1-uni_rand*uni_rand)) * tau_c + vd_xyz[1] * 1e6 * tau_c;
+	dz = dl * uni_rand * tau_c + vd_xyz[2] * 1e6 * tau_c;
+	}
 
 	x -= dx; y-= dy; z-=dz;
 	//DEBUG
@@ -141,7 +147,7 @@ void electron::v_drift(double* vd_xyz, TH3F* hx1, TH3F* hx2, TH3F*hx3,TH3F* hy1,
 	vd_xyz[0] = v_x * 1e-2;
 	vd_xyz[1] = v_y * 1e-2;
 	vd_xyz[2] = v_z * 1e-2;
-	Vdz = vd_xyz[2];
+	Vdz = vd_xyz[2]/Mu*1e2;
 }
 double electron::lifetime()
 {

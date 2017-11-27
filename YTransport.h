@@ -78,7 +78,7 @@ public:
 	TH3F* hfieldx3 = new TH3F("hfieldx3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
 	TH3F* hfieldy3 = new TH3F("hfieldy3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
 	TH3F* hfieldz3 = new TH3F("hfieldz3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
-	TH1D* htime = new TH1D("htime","collection time",100,1e-10,2e-7);
+	TH1D* htime = new TH1D("htime","collection time",100,0,2e-7);
 	
 	TPolyLine3D cube;
 	TPolyMarker3D partgen;
@@ -100,8 +100,9 @@ public:
 	
 	void initialize(int);
 	void initialize(char* ,int);
-	void transport();
-	void event(int);
+	void makehistogram(const char* fname);
+	void transport(int);
+	void event(int, int);
 	void print();
 	void save(char*, int);
 	void load(string&);

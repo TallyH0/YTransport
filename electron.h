@@ -31,7 +31,7 @@ public:
 	electron(double r1, double r2, double r3, double rad) { x=r1; y=r2; z=r3; PI_eq=rad; tau = lifetime();}
 	electron& operator=(const electron&) { }
 	//void step(const vector<E_field>);
-	void step(TH3F*, TH3F*, TH3F*,TH3F*, TH3F*, TH3F*, TH3F*, TH3F*, TH3F*);
+	void step(int, TH3F*, TH3F*, TH3F*,TH3F*, TH3F*, TH3F*, TH3F*, TH3F*, TH3F*);
 	int status() { return status_val; }
 	double x, y, z;
 	double dx, dy, dz;

@@ -4,6 +4,59 @@ ClassImp(YTransport)
 YTransport::YTransport()
 {
 }
+void YTransport::makehistogram(const char* fname)
+{
+	ReadData(Efield);
+	int x,y,z;
+	double x_tr[3],y_tr[3],z_tr[3];
+	double E1[3];
+	double E2[3];
+	double E3[3];
+	time_t start, end;
+	time(&start);
+	for(x=1; x<=bin_x; ++x){
+	    for(y=1; y<=bin_y; ++y){
+		    for(z=1; z<=bin_z; ++z){
+			    x_tr[0] = hfieldx1->GetXaxis()->GetBinCenter(x);
+			    y_tr[0] = hfieldx1->GetYaxis()->GetBinCenter(y);
+			    z_tr[0] = hfieldx1->GetZaxis()->GetBinCenter(z);
+			    x_tr[1] = hfieldx2->GetXaxis()->GetBinCenter(x);
+			    y_tr[1] = hfieldx2->GetYaxis()->GetBinCenter(y);
+			    z_tr[1] = hfieldx2->GetZaxis()->GetBinCenter(z);
+			    x_tr[2] = hfieldx3->GetXaxis()->GetBinCenter(x);
+			    y_tr[2] = hfieldx3->GetYaxis()->GetBinCenter(y);
+			    z_tr[2] = hfieldx3->GetZaxis()->GetBinCenter(z);
+				interpolate(x_tr[0], y_tr[0], z_tr[0], Efield, E1);
+				interpolate(x_tr[1], y_tr[1], z_tr[1], Efield, E2);
+				interpolate(x_tr[2], y_tr[2], z_tr[2], Efield, E3);
+			    hfieldx1->SetBinContent(x,y,z,E1[0]);
+			    hfieldy1->SetBinContent(x,y,z,E1[1]);
+			    hfieldz1->SetBinContent(x,y,z,E1[2]);
+			    hfieldx2->SetBinContent(x,y,z,E2[0]);
+			    hfieldy2->SetBinContent(x,y,z,E2[1]);
+			    hfieldz2->SetBinContent(x,y,z,E2[2]);
+			    hfieldx3->SetBinContent(x,y,z,E3[0]);
+			    hfieldy3->SetBinContent(x,y,z,E3[1]);
+			    hfieldz3->SetBinContent(x,y,z,E3[2]);
+			}
+			printf("bin# - x : %d, y : %d\n", x, y);
+		}
+	}
+	time(&end);
+	printf("hfield takes %lf seconds\n", difftime(end,start));
+	Efield.clear();
+	TFile* fout = new TFile(fname,"RECREATE");
+	hfieldx1->Write();
+	hfieldx2->Write();
+	hfieldx3->Write();
+	hfieldy1->Write();
+	hfieldy2->Write();
+	hfieldy3->Write();
+	hfieldz1->Write();
+	hfieldz2->Write();
+	hfieldz3->Write();
+	fout->Close();
+}
 void YTransport::initialize(char* fname, int n)
 {
 	TFile* fin = new TFile(fname);
@@ -61,47 +114,6 @@ void YTransport::initialize(int n)
     cube.SetNextPoint(-SIZE_X, SIZE_Y, 1);
     cube.SetNextPoint(-SIZE_X, SIZE_Y, SIZE_Z);
 #endif
-/*
-	ReadData(Efield);
-	int x,y,z;
-	double x_tr[3],y_tr[3],z_tr[3];
-	double E1[3];
-	double E2[3];
-	double E3[3];
-	time_t start, end;
-	time(&start);
-	for(x=1; x<=bin_x; ++x){
-	    for(y=1; y<=bin_y; ++y){
-		    for(z=1; z<=bin_z; ++z){
-			    x_tr[0] = hfieldx1->GetXaxis()->GetBinCenter(x);
-			    y_tr[0] = hfieldx1->GetYaxis()->GetBinCenter(y);
-			    z_tr[0] = hfieldx1->GetZaxis()->GetBinCenter(z);
-			    x_tr[1] = hfieldx2->GetXaxis()->GetBinCenter(x);
-			    y_tr[1] = hfieldx2->GetYaxis()->GetBinCenter(y);
-			    z_tr[1] = hfieldx2->GetZaxis()->GetBinCenter(z);
-			    x_tr[2] = hfieldx3->GetXaxis()->GetBinCenter(x);
-			    y_tr[2] = hfieldx3->GetYaxis()->GetBinCenter(y);
-			    z_tr[2] = hfieldx3->GetZaxis()->GetBinCenter(z);
-				interpolate(x_tr[0], y_tr[0], z_tr[0], Efield, E1);
-				interpolate(x_tr[1], y_tr[1], z_tr[1], Efield, E2);
-				interpolate(x_tr[2], y_tr[2], z_tr[2], Efield, E3);
-			    hfieldx1->SetBinContent(x,y,z,E1[0]);
-			    hfieldy1->SetBinContent(x,y,z,E1[1]);
-			    hfieldz1->SetBinContent(x,y,z,E1[2]);
-			    hfieldx2->SetBinContent(x,y,z,E2[0]);
-			    hfieldy2->SetBinContent(x,y,z,E2[1]);
-			    hfieldz2->SetBinContent(x,y,z,E2[2]);
-			    hfieldx3->SetBinContent(x,y,z,E3[0]);
-			    hfieldy3->SetBinContent(x,y,z,E3[1]);
-			    hfieldz3->SetBinContent(x,y,z,E3[2]);
-			}
-			printf("bin# - x : %d, y : %d\n", x, y);
-		}
-	}
-	time(&end);
-	printf("hfield takes %lf seconds\n", difftime(end,start));
-	Efield.clear();
-*/
 			    
 	//beam->initialize();
 	//beam->generation();
@@ -117,7 +129,7 @@ void YTransport::initialize(int n)
 #endif
 	}
 }
-void YTransport::transport()
+void YTransport::transport(int mode)
 {
 	time_t first, second;
 	time(&first);
@@ -131,16 +143,17 @@ void YTransport::transport()
 	    cnt=0;
 	    while(elist[i].status() == 0)
 		{
-		    event(i);
+		    event(mode, i);
+			Z_plot[i].SetPoint(cnt,elist[i].t,elist[i].z);
+            Ez_plot[i].SetPoint(cnt,elist[i].t,elist[i].Ez);
+			Vz_plot[i].SetPoint(cnt,elist[i].t,elist[i].Vdz);
+			++cnt;
+			/*
 			dx.push_back(elist[i].dx);
 			dy.push_back(elist[i].dy);
 			dz.push_back(elist[i].dz);
 			dl.push_back(elist[i].path_dl);
-			Z_plot[i].SetPoint(cnt,elist[i].t,elist[i].z);
-            Ez_plot[i].SetPoint(cnt,elist[i].z,elist[i].Ez);
-			Vz_plot[i].SetPoint(cnt,elist[i].z,elist[i].Vdz);
 			hVdz->Fill(elist[i].Vdz);
-			++cnt;
 			if(elist[i].cnt == 100)
 			    dz1->Fill(9-elist[i].z);
 			else if(elist[i].cnt == 1000)
@@ -149,6 +162,7 @@ void YTransport::transport()
 			    dz3->Fill(9-elist[i].z);
 			else if(elist[i].cnt == 100000)
 			    dz4->Fill(9-elist[i].z);
+			*/
 		}
 		save("RESULT_diffusion_only.txt", i);
 		cout << i + 1 << " electron done\n";
@@ -166,10 +180,10 @@ void YTransport::transport()
 	time(&second);
 	printf("Simulation takes %lf seconds\n", difftime(second, first));
 }
-void YTransport::event(int i)
+void YTransport::event(int mode, int i)
 {
 	//elist[i].step(Efield);
-	elist[i].step(hfieldx1,hfieldx2,hfieldx3,hfieldy1,hfieldy2,hfieldy3,hfieldz1,hfieldz2,hfieldz3);
+	elist[i].step(mode,hfieldx1,hfieldx2,hfieldx3,hfieldy1,hfieldy2,hfieldy3,hfieldz1,hfieldz2,hfieldz3);
 }
 void YTransport::print()
 {
