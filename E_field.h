@@ -19,7 +19,7 @@ struct E_field
 struct inter{
     int index;
 	double dl;
-    bool operator <(const inter& b)
+    bool operator <(const inter& b)const
     {
         return this->dl < b.dl;
     }

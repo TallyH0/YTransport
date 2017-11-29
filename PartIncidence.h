@@ -34,6 +34,7 @@ public:
 	ClassDef(PartIncidence,0);
 	void generation();
     void initialize();
+    void initialize(double);
     vector<vector<double>> pos_carrier;
 
 private:

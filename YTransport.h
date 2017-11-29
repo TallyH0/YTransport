@@ -90,9 +90,9 @@ public:
 	TH1F* hvthy = new TH1F("hvthy","Thermal dy",100,-0.3,0.3);
 	TH1F* hvthz = new TH1F("hvthz","Thermal dz",100,-0.3,0.3);
 	TH1F* hvthl = new TH1F("hvthl","Thermal dl",100,-0.01,0.25);
-    TGraph Z_plot[1000];
-	TGraph Ez_plot[1000];
-	TGraph Vz_plot[1000];
+    //TGraph Z_plot[1000];
+	//TGraph Ez_plot[1000];
+	//TGraph Vz_plot[1000];
 	TH1F* hVdz = new TH1F("hVdz","Drift Velocity distribution",100,1e2,1e5);
 	vector<vector<double>> carrier_dx;
 	vector<vector<double>> carrier_dy;
@@ -102,7 +102,7 @@ public:
 	
 	void initialize(int);
 	void initialize(char* ,int, double);
-	void makehistogram(const char* fname);
+	void makefield(const char* fname);
 	void transport(int);
 	void event(int, int);
 	void print();

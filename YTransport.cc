@@ -4,7 +4,7 @@ ClassImp(YTransport)
 YTransport::YTransport()
 {
 }
-void YTransport::makehistogram(const char* fname)
+void YTransport::makefield(const char* fname)
 {
 	ReadData(Efield);
 	int x,y,z;
@@ -80,14 +80,14 @@ void YTransport::initialize(char* fname, int n, double rad_flux)
 	hfieldz3->SetDirectory(0);
 	fin->Close();
     delete fin;
-	//beam->initialize();
-	//beam->generation();
+	beam->initialize(0.001);
+	beam->generation();
     
-	electron tmp(0,0,9,rad_flux);
-	//for(int i=0; i< beam->pos_carrier[0].size(); ++i)
-	for(int i=0; i< n; ++i)
+	//electron tmp(0,0,9,rad_flux);
+	for(int i=0; i< beam->pos_carrier[0].size(); ++i)
+	//for(int i=0; i< n; ++i)
 	{
-	    //electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
+	    electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
 		elist.push_back(tmp);
 #ifdef DEBUG
 	    partgen.SetNextPoint(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i]);
@@ -116,8 +116,8 @@ void YTransport::initialize(int n)
     cube.SetNextPoint(-SIZE_X, SIZE_Y, SIZE_Z);
 #endif
 			    
-	//beam->initialize();
-	//beam->generation();
+	beam->initialize();
+	beam->generation();
     
 	electron tmp(0,0,9,5e12);
 	//for(int i=0; i< beam->pos_carrier[0].size(); ++i)
@@ -192,6 +192,7 @@ void YTransport::print()
 {
     int cnt = 0;
 	int cnt_trap = 0;
+	int cnt_tout = 0;
 	htime->Reset();
 	hstep->Reset();
 	for(int i = 0; i < elist.size(); ++i)
@@ -206,10 +207,14 @@ void YTransport::print()
 		{
 		    cnt_trap++;
 			hstep_t->Fill(elist[i].cnt);
+		}else if(elist[i].status() == -1)
+		{
+		    cnt_tout++;
 		}
 	}
     printf("Total status(2) = %d\n", cnt);
 	printf("Total status(-2) = %d\n", cnt_trap);
+	printf("Total status(-1) = %d\n", cnt_tout);
 #ifdef DEBUG
     cube.Draw();
 	partgen.Draw("same");
