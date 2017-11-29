@@ -1,5 +1,6 @@
 TGraph *gr = new TGraph();
 TGraph *gr2 = new TGraph();
+TGraph* gr3 = new TGraph();
 TF1 *vth = new TF1("vth","[1] * x * x * TMath::Exp(-[0]*x*x/2)",0,1e6);
 TH1D* hdl = new TH1D("hdl","hdl",10000,1e-8,1e-5);
 TH1D* hx = new TH1D("hx","hx",1000,-1e-7,1e-7);
@@ -28,20 +29,21 @@ double trap(double);
 
 void test_parameter()
 {
-    int step = 1e5;
+    int step = 1e4;
 	int cnt = 0;
 	double doping = 1e12;
 	double P_trap;
-	double flux_max = 1e30;
-	double flux_min = 1e13;
+	double flux_max = 1e16;
+	double flux_min = 1e12;
     vth->SetParameter(0,m/(k*T));
 	vth->SetParameter(1,4*pi*sqrt(TMath::Power(m/(2*pi*k*T),3)));
 	double vth_mean = vth->GetMaximumX();
 	for(double i = flux_min; i < flux_max; i += (flux_max - flux_min)/step)
 	{
-	    gr->SetPoint(cnt,i, vth_mean * (1/time_eff(doping,i)));
-        P_trap = 1/trap(i) / (1/collision_time(doping) + 1/trap(i));
+	    gr->SetPoint(cnt,i, time_eff(doping,i));
+        P_trap = 1/trap(i)*1e9 / (1/collision_time(doping) + 1/trap(i)*1e9);
 		gr2->SetPoint(cnt,i,P_trap); 
+		gr3->SetPoint(cnt,i,P_trap*4.7e-13);
 		++cnt;
 	}
 	/*
@@ -112,7 +114,7 @@ double random_sim(int step, double doping, TH1D* hx, TH1D* hy, TH1D* hz)
 }
 double time_eff(double doping, double PI_eq)
 {
-	return 1/collision_time(doping) + 1/trap(PI_eq);
+	return 1/(1/collision_time(doping) + 1/trap(PI_eq)*1e9);
 }
 double trap(double PI_eq)
 {

@@ -57,7 +57,7 @@ void YTransport::makehistogram(const char* fname)
 	hfieldz3->Write();
 	fout->Close();
 }
-void YTransport::initialize(char* fname, int n)
+void YTransport::initialize(char* fname, int n, double rad_flux)
 {
 	TFile* fin = new TFile(fname);
 	hfieldx1 = (TH3F*)fin->Get("hfieldx1;1");
@@ -78,11 +78,12 @@ void YTransport::initialize(char* fname, int n)
 	hfieldz2->SetDirectory(0);
 	hfieldz3 = (TH3F*)fin->Get("hfieldz3;1");
 	hfieldz3->SetDirectory(0);
+	fin->Close();
     delete fin;
 	//beam->initialize();
 	//beam->generation();
     
-	electron tmp(0,0,9,5e12);
+	electron tmp(0,0,9,rad_flux);
 	//for(int i=0; i< beam->pos_carrier[0].size(); ++i)
 	for(int i=0; i< n; ++i)
 	{
@@ -192,15 +193,23 @@ void YTransport::print()
     int cnt = 0;
 	int cnt_trap = 0;
 	htime->Reset();
+	hstep->Reset();
 	for(int i = 0; i < elist.size(); ++i)
 	{
 	    htime->Fill(elist[i].t); 
-		if(elist[i].status() == 2) cnt++;
-		else if(elist[i].status() == -2) cnt_trap++;
+		if(elist[i].status() == 2)
+		{
+		    cnt++;
+		    hstep->Fill(elist[i].cnt);
+		}
+		else if(elist[i].status() == -2)
+		{
+		    cnt_trap++;
+			hstep_t->Fill(elist[i].cnt);
+		}
 	}
     printf("Total status(2) = %d\n", cnt);
 	printf("Total status(-2) = %d\n", cnt_trap);
-	htime->Draw();
 #ifdef DEBUG
     cube.Draw();
 	partgen.Draw("same");

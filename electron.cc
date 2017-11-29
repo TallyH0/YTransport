@@ -61,7 +61,7 @@ double electron::collision_time()
 } 
 double electron::time_eff()
 {
-	return 1/(1/collision_time() + 1/(beta*PI_eq));
+	return 1/(1/collision_time() + (beta*PI_eq)*1e9);
 } 
 void electron::rebound()
 {
@@ -82,8 +82,8 @@ bool electron::In_anode()
 {
 	double x1 = x - PAD_SIZE * ((int)(x+10) / PAD_SIZE);
 	double y1 = y - PAD_SIZE * ((int)(y+10) / PAD_SIZE);
-	//if( ANODE_SIZE < fabs(x1) && fabs(x1) < ANODE_SIZE + SPACING && ANODE_SIZE < fabs(y1) && fabs(y1) < ANODE_SIZE + SPACING)
-	if(distance(x1,y1,0,0,0,0) < 3.5*3.5)
+	if( ANODE_SIZE < fabs(x1) && fabs(x1) < ANODE_SIZE + SPACING && ANODE_SIZE < fabs(y1) && fabs(y1) < ANODE_SIZE + SPACING)
+	//if(distance(x1,y1,0,0,0,0) < 3.5*3.5)
 	return true;
 	else return false;
 
@@ -97,7 +97,7 @@ double electron::v_th()
 bool electron::trap()
 {
 	double t_eff_inverse = beta * PI_eq;
-    double P_trap = t_eff_inverse / (t_eff_inverse + 1/collision_time());
+    double P_trap = t_eff_inverse*1e9 / (t_eff_inverse*1e9 + 1/collision_time());
 	if(gRandom->Rndm() < P_trap) return true;
 	else return false;
 
