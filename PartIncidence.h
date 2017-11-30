@@ -12,6 +12,7 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -34,11 +35,10 @@ public:
 	ClassDef(PartIncidence,0);
 	void generation();
     void initialize();
-    void initialize(double);
+    void initialize(double, double, double);
     vector<vector<double>> pos_carrier;
 
 private:
-    int dir = 0;
     double direction[3];
 	double position_in[3];
 	double position_out[3];

@@ -21,11 +21,8 @@
 #include "E_field.h"
 #include "Doping.h"
 #include "Geometry.h"
-#include "Damage.h"
 #include "PartIncidence.h"
-#include "Temperature.h"
 
-#define RAD_DAMAGE 5e12
 #define bin_x 100
 #define bin_y 100
 #define bin_z 45
@@ -82,17 +79,11 @@ public:
 	TH1D* hstep = new TH1D("hstep","step distribution",100,0,4e5);
 	TH1D* hstep_t = new TH1D("hstep_t","trap step distribution",100,0,4e5);
 	
-	TPolyLine3D cube;
-	TPolyMarker3D partgen;
-	TPolyMarker3D pm3d[100];
 	TH1D* hvd = new TH1D("hvd","Drift dz",100,-0.01,0.05);
 	TH1F* hvthx = new TH1F("hvthx","Thermal dx",100,-0.3,0.3);
 	TH1F* hvthy = new TH1F("hvthy","Thermal dy",100,-0.3,0.3);
 	TH1F* hvthz = new TH1F("hvthz","Thermal dz",100,-0.3,0.3);
 	TH1F* hvthl = new TH1F("hvthl","Thermal dl",100,-0.01,0.25);
-    //TGraph Z_plot[1000];
-	//TGraph Ez_plot[1000];
-	//TGraph Vz_plot[1000];
 	TH1F* hVdz = new TH1F("hVdz","Drift Velocity distribution",100,1e2,1e5);
 	vector<vector<double>> carrier_dx;
 	vector<vector<double>> carrier_dy;
@@ -100,9 +91,10 @@ public:
 	vector<vector<double>> carrier_dl;
 	
 	
-	void initialize(int);
-	void initialize(char* ,int, double);
+	void init_fixed(char*, int, double);
+	void init_beam(char* , double, double);
 	void makefield(const char* fname);
+	void loadfield(const char* fname);
 	void transport(int);
 	void event(int, int);
 	void print();

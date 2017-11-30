@@ -57,8 +57,18 @@ void YTransport::makefield(const char* fname)
 	hfieldz3->Write();
 	fout->Close();
 }
-void YTransport::initialize(char* fname, int n, double rad_flux)
+void YTransport::loadfield(const char* fname)
 {
+	hfieldx1->Reset();
+	hfieldx2->Reset();
+	hfieldx3->Reset();
+	hfieldy1->Reset();
+	hfieldy2->Reset();
+	hfieldy3->Reset();
+	hfieldz1->Reset();
+	hfieldz2->Reset();
+	hfieldz3->Reset();
+
 	TFile* fin = new TFile(fname);
 	hfieldx1 = (TH3F*)fin->Get("hfieldx1;1");
 	hfieldx1->SetDirectory(0);
@@ -80,54 +90,26 @@ void YTransport::initialize(char* fname, int n, double rad_flux)
 	hfieldz3->SetDirectory(0);
 	fin->Close();
     delete fin;
-	beam->initialize(0.001);
+}
+void YTransport::init_beam(char* fname, double angle_z, double rad_flux)
+{
+	loadfield(fname);
+	beam->initialize(0,0,angle_z);
 	beam->generation();
     
-	//electron tmp(0,0,9,rad_flux);
 	for(int i=0; i< beam->pos_carrier[0].size(); ++i)
-	//for(int i=0; i< n; ++i)
 	{
-	    electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
+	    electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], rad_flux);
 		elist.push_back(tmp);
-#ifdef DEBUG
-	    partgen.SetNextPoint(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i]);
-#endif
 	}
 }
-void YTransport::initialize(int n)
+void YTransport::init_fixed(char* fname, int n, double rad_flux)
 {
-#ifdef DEBUG
-    cube.SetNextPoint(-SIZE_X, -SIZE_Y, 1);
-    cube.SetNextPoint(SIZE_X, -SIZE_Y, 1);
-    cube.SetNextPoint(SIZE_X, -SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(-SIZE_X, -SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(-SIZE_X, -SIZE_Y, 1);
-    cube.SetNextPoint(-SIZE_X, SIZE_Y, 1);
-    cube.SetNextPoint(SIZE_X, SIZE_Y, 1);
-    cube.SetNextPoint(SIZE_X, -SIZE_Y, 1);
-    cube.SetNextPoint(SIZE_X, -SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(-SIZE_X, -SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(-SIZE_X, SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(SIZE_X, SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(SIZE_X, -SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(SIZE_X, SIZE_Y, SIZE_Z);
-    cube.SetNextPoint(SIZE_X, SIZE_Y, 1);
-    cube.SetNextPoint(-SIZE_X, SIZE_Y, 1);
-    cube.SetNextPoint(-SIZE_X, SIZE_Y, SIZE_Z);
-#endif
-			    
-	beam->initialize();
-	beam->generation();
-    
-	electron tmp(0,0,9,5e12);
-	//for(int i=0; i< beam->pos_carrier[0].size(); ++i)
+	loadfield(fname);
+	electron tmp(0,0,9,rad_flux);
 	for(int i=0; i< n; ++i)
 	{
-	    //electron tmp(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i], RAD_DAMAGE);
 		elist.push_back(tmp);
-#ifdef DEBUG
-	    partgen.SetNextPoint(beam->pos_carrier[0][i], beam->pos_carrier[1][i], beam->pos_carrier[2][i]);
-#endif
 	}
 }
 void YTransport::transport(int mode)
@@ -165,7 +147,7 @@ void YTransport::transport(int mode)
 			    dz4->Fill(9-elist[i].z);
 				*/
 		}
-		save("RESULT_diffusion_only.txt", i);
+		save("RESULT", i);
 		cout << i + 1 << " electron done\n";
 		
 		/*
@@ -185,7 +167,6 @@ void YTransport::transport(int mode)
 }
 void YTransport::event(int mode, int i)
 {
-	//elist[i].step(Efield);
 	elist[i].step(mode,hfieldx1,hfieldx2,hfieldx3,hfieldy1,hfieldy2,hfieldy3,hfieldz1,hfieldz2,hfieldz3);
 }
 void YTransport::print()
@@ -215,10 +196,6 @@ void YTransport::print()
     printf("Total status(2) = %d\n", cnt);
 	printf("Total status(-2) = %d\n", cnt_trap);
 	printf("Total status(-1) = %d\n", cnt_tout);
-#ifdef DEBUG
-    cube.Draw();
-	partgen.Draw("same");
-#endif
 }
 void YTransport::save(char* fname, int i)
 {
