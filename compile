@@ -8,3 +8,5 @@ rootcint -f electronDict.cc -c electron.h
 rootcint -f PartIncidenceDict.cc -c PartIncidence.h 
 c++  -O2 -fPIC -pthread -std=c++11 -m64 -I${ROOTSYS}/include -c YTransportDict.cc DopingDict.cc E_fieldDict.cc electronDict.cc PartIncidenceDict.cc
 c++ -shared -O2 -m64 YTransport.o Doping.o E_field.o electron.o PartIncidence.o YTransportDict.o DopingDict.o E_fieldDict.o electronDict.o PartIncidenceDict.o -o YTransport.so
+rm *Dict.*
+rm *.o
