@@ -21,9 +21,9 @@ using namespace std;
 #define cos TMath::Cos
 #define sin TMath::Sin
 #define abs TMath::Abs
-#define SIZE_X 20
-#define SIZE_Y 20
-#define SIZE_Z 17
+#define SIZE_X 100
+#define SIZE_Y 100
+#define DEPTH 17
 #define RAND() (double)rand()/RAND_MAX
 #define GEN_PER 80
 

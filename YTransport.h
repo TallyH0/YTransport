@@ -5,6 +5,7 @@
 #include "TKey.h"
 #include "TRandom.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TH3.h"
 #include "TList.h"
 #include "TGraph.h"
@@ -23,9 +24,9 @@
 #include "Geometry.h"
 #include "PartIncidence.h"
 
-#define bin_x 100
-#define bin_y 100
-#define bin_z 45
+#define BIN_X 100
+#define BIN_Y 100
+#define BIN_Z 45
 
 using namespace std;
 
@@ -66,18 +67,19 @@ public:
 	TH1F* dz3 = new TH1F("dz3","After 2 X 10^{4} step",100,-10,10);
 	TH1F* dz4 = new TH1F("dz4","After 3 X 10^{5} step",100,-10,10);
 	
-	TH3F* hfieldx1 = new TH3F("hfieldx1","",bin_x,-10,10,bin_y,-10,10,bin_z,0,2.5);
-	TH3F* hfieldy1 = new TH3F("hfieldy1","",bin_x,-10,10,bin_y,-10,10,bin_z,0,2.5);
-	TH3F* hfieldz1 = new TH3F("hfieldz1","",bin_x,-10,10,bin_y,-10,10,bin_z,0,2.5);
-	TH3F* hfieldx2 = new TH3F("hfieldx2","",bin_x,-10,10,bin_y,-10,10,bin_z,1.5,17.5);
-	TH3F* hfieldy2 = new TH3F("hfieldy2","",bin_x,-10,10,bin_y,-10,10,bin_z,1.5,17.5);
-	TH3F* hfieldz2 = new TH3F("hfieldz2","",bin_x,-10,10,bin_y,-10,10,bin_z,1.5,17.5);
-	TH3F* hfieldx3 = new TH3F("hfieldx3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
-	TH3F* hfieldy3 = new TH3F("hfieldy3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
-	TH3F* hfieldz3 = new TH3F("hfieldz3","",bin_x,-10,10,bin_y,-10,10,bin_z,16.5,19);
+	TH3F* hfieldx1 = new TH3F("hfieldx1","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,0,2.5);
+	TH3F* hfieldy1 = new TH3F("hfieldy1","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,0,2.5);
+	TH3F* hfieldz1 = new TH3F("hfieldz1","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,0,2.5);
+	TH3F* hfieldx2 = new TH3F("hfieldx2","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,1.5,17.5);
+	TH3F* hfieldy2 = new TH3F("hfieldy2","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,1.5,17.5);
+	TH3F* hfieldz2 = new TH3F("hfieldz2","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,1.5,17.5);
+	TH3F* hfieldx3 = new TH3F("hfieldx3","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,16.5,19);
+	TH3F* hfieldy3 = new TH3F("hfieldy3","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,16.5,19);
+	TH3F* hfieldz3 = new TH3F("hfieldz3","",BIN_X,-10.5,10.5,BIN_Y,-10.5,10.5,BIN_Z,16.5,19);
 	TH1D* htime = new TH1D("htime","collection time",100,0,2e-7);
 	TH1D* hstep = new TH1D("hstep","step distribution",100,0,4e5);
 	TH1D* hstep_t = new TH1D("hstep_t","trap step distribution",100,0,4e5);
+	TH2D* hcluster = new TH2D("hcluster","cluster distribution",5,-2.5,2.5,5,-2,2.5);
 	
 	TH1D* hvd = new TH1D("hvd","Drift dz",100,-0.01,0.05);
 	TH1F* hvthx = new TH1F("hvthx","Thermal dx",100,-0.3,0.3);
@@ -92,7 +94,7 @@ public:
 	
 	
 	void init_fixed(char*, int, double);
-	void init_beam(char* , double, double);
+	void init_beam(char*,double, double, double, double);
 	void makefield(const char* fname);
 	void loadfield(const char* fname);
 	void transport(int);
@@ -100,6 +102,7 @@ public:
 	void print();
 	void save(char*, int);
 	void load(string&);
+	void hist_save(char* fname, TObject*);
 	void debug(int n);
 };
 #endif

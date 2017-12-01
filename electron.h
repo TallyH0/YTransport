@@ -13,8 +13,8 @@
 #include <cmath>
 #include <ctime>
 
-#define SIZE_X 20
-#define SIZE_Y 20
+#define SIZE_X 100
+#define SIZE_Y 100
 #define DEPTH 17
 #define MAX_TRACKING_TIME 1e-7
 #define CONST_TAU 4.17522492152838888e-13
@@ -44,6 +44,7 @@ public:
 	double lifetime();
 	double collision_time();
 	unsigned int seed;
+	int cluster_x, cluster_y;
 	
 	//DEBUG
 

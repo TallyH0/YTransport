@@ -14,9 +14,9 @@ void YTransport::makefield(const char* fname)
 	double E3[3];
 	time_t start, end;
 	time(&start);
-	for(x=1; x<=bin_x; ++x){
-	    for(y=1; y<=bin_y; ++y){
-		    for(z=1; z<=bin_z; ++z){
+	for(x=1; x<=BIN_X; ++x){
+	    for(y=1; y<=BIN_Y; ++y){
+		    for(z=1; z<=BIN_Z; ++z){
 			    x_tr[0] = hfieldx1->GetXaxis()->GetBinCenter(x);
 			    y_tr[0] = hfieldx1->GetYaxis()->GetBinCenter(y);
 			    z_tr[0] = hfieldx1->GetZaxis()->GetBinCenter(z);
@@ -91,10 +91,11 @@ void YTransport::loadfield(const char* fname)
 	fin->Close();
     delete fin;
 }
-void YTransport::init_beam(char* fname, double angle_z, double rad_flux)
+void YTransport::init_beam(char* fname,double x, double y, double angle_z, double rad_flux)
 {
+    elist.clear();
 	loadfield(fname);
-	beam->initialize(0,0,angle_z);
+	beam->initialize(x,y,angle_z);
 	beam->generation();
     
 	for(int i=0; i< beam->pos_carrier[0].size(); ++i)
@@ -105,6 +106,7 @@ void YTransport::init_beam(char* fname, double angle_z, double rad_flux)
 }
 void YTransport::init_fixed(char* fname, int n, double rad_flux)
 {
+    elist.clear();
 	loadfield(fname);
 	electron tmp(0,0,9,rad_flux);
 	for(int i=0; i< n; ++i)
@@ -176,6 +178,7 @@ void YTransport::print()
 	int cnt_tout = 0;
 	htime->Reset();
 	hstep->Reset();
+	hcluster->Reset();
 	for(int i = 0; i < elist.size(); ++i)
 	{
 	    htime->Fill(elist[i].t); 
@@ -183,6 +186,7 @@ void YTransport::print()
 		{
 		    cnt++;
 		    hstep->Fill(elist[i].cnt);
+		    hcluster->Fill(elist[i].cluster_x, elist[i].cluster_y);
 		}
 		else if(elist[i].status() == -2)
 		{
@@ -193,9 +197,9 @@ void YTransport::print()
 		    cnt_tout++;
 		}
 	}
-    printf("Total status(2) = %d\n", cnt);
-	printf("Total status(-2) = %d\n", cnt_trap);
-	printf("Total status(-1) = %d\n", cnt_tout);
+    printf("Total collection = %d\n", cnt);
+	printf("Total trap = %d\n", cnt_trap);
+	printf("Total time out = %d\n", cnt_tout);
 }
 void YTransport::save(char* fname, int i)
 {

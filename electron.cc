@@ -112,32 +112,43 @@ double electron::mobility()
 
 	return Mu0 + Mu1 / (1 + pow(doping(x, y, z)/N_r , alpha));
 }
-//void electron::v_drift(double* vd_xyz, const vector<E_field> E)
 void electron::v_drift(double* vd_xyz, TH3F* hx1, TH3F* hx2, TH3F*hx3,TH3F* hy1, TH3F* hy2, TH3F* hy3, TH3F* hz1, TH3F* hz2, TH3F* hz3)
 {
+    double x_t, y_t;
+    if(x>=0){
+	   cluster_x = (int)(x+10) / PAD_SIZE;
+       x_t = x - PAD_SIZE * cluster_x;
+	}
+	else{ 
+	   cluster_x = (int)(x-10) / PAD_SIZE;
+       x_t = x - PAD_SIZE * cluster_x;
+	}
+    if(y>=0){
+	   cluster_y = (int)(y+10) / PAD_SIZE;
+       y_t = y - PAD_SIZE * cluster_y;
+	}
+	else{ 
+	   cluster_y = (int)(y-10) / PAD_SIZE;
+       y_t = y - PAD_SIZE * cluster_y;
+	}
+
+
     double v_sat = 2.4e7 / (1+ 0.8 * TMath::Exp(T/600));
 
     double Mu = mobility();
-	//interpolate(x, y, z, E, vd_xyz); 
 	if(z<2.1)
 	{
-	    vd_xyz[0] = hx1->Interpolate(x,y,z);
-	    vd_xyz[1] = hy1->Interpolate(x,y,z);
-	    vd_xyz[2] = hz1->Interpolate(x,y,z);
-		if(hz1->Interpolate(x,y,z) == 0 || hy1->Interpolate(x,y,z) ==0 || hx1->Interpolate(x,y,z) == 0)
-		    printf("Domain 1 : %lf %lf %lf\n",x, y, z);
+	    vd_xyz[0] = hx1->Interpolate(x_t,y_t,z);
+	    vd_xyz[1] = hy1->Interpolate(x_t,y_t,z);
+	    vd_xyz[2] = hz1->Interpolate(x_t,y_t,z);
 	}else if(z<17){
-	    vd_xyz[0] = hx2->Interpolate(x,y,z);
-	    vd_xyz[1] = hy2->Interpolate(x,y,z);
-	    vd_xyz[2] = hz2->Interpolate(x,y,z);
-		if(hz2->Interpolate(x,y,z) == 0 || hy2->Interpolate(x,y,z) ==0 || hx2->Interpolate(x,y,z) == 0)
-		    printf("Domain 2 : %lf %lf %lf\n",x, y, z);
+	    vd_xyz[0] = hx2->Interpolate(x_t,y_t,z);
+	    vd_xyz[1] = hy2->Interpolate(x_t,y_t,z);
+	    vd_xyz[2] = hz2->Interpolate(x_t,y_t,z);
 	}else{
-	    vd_xyz[0] = hx2->Interpolate(x,y,z);
-	    vd_xyz[1] = hy2->Interpolate(x,y,z);
-	    vd_xyz[2] = hz2->Interpolate(x,y,z);
-		if(hz3->Interpolate(x,y,z) == 0 || hy3->Interpolate(x,y,z) ==0 || hx3->Interpolate(x,y,z) == 0)
-		    printf("Domain 3 : %lf %lf %lf\n",x, y, z);
+	    vd_xyz[0] = hx2->Interpolate(x_t,y_t,z);
+	    vd_xyz[1] = hy2->Interpolate(x_t,y_t,z);
+	    vd_xyz[2] = hz2->Interpolate(x_t,y_t,z);
 	}
 	Ez = vd_xyz[2];
 
