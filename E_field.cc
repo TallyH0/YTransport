@@ -1,7 +1,7 @@
 #include "E_field.h"
 void ReadData(vector<E_field>& ElectricField)
 {
-	ifstream ifs ("efield_Si_output.txt");
+	ifstream ifs ("efield_bb4v.txt");
 	if(!ifs) std::cout << "Can't read file\n";
 	E_field tmp;
 	while(!ifs.eof()){

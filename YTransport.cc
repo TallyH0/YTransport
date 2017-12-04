@@ -181,17 +181,17 @@ void YTransport::print()
 	hcluster->Reset();
 	for(int i = 0; i < elist.size(); ++i)
 	{
-	    htime->Fill(elist[i].t); 
 		if(elist[i].status() == 2)
 		{
 		    cnt++;
 		    hstep->Fill(elist[i].cnt);
+	        htime->Fill(elist[i].t); 
 		    hcluster->Fill(elist[i].cluster_x, elist[i].cluster_y);
 		}
 		else if(elist[i].status() == -2)
 		{
 		    cnt_trap++;
-			hstep_t->Fill(elist[i].cnt);
+			hstep_t->Fill(elist[i].t);
 		}else if(elist[i].status() == -1)
 		{
 		    cnt_tout++;
